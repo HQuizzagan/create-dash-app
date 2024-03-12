@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Node.js
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Compiled Tailwind CSS
+**/tailwind-output.css
+
+# Others
+*DS_Store*

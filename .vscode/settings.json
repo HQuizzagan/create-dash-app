@@ -1,0 +1,12 @@
+{
+  // Exclude Jinja template files from Dockerfile linting
+  "docker.languageserver.diagnostics.files": {
+    "exclude": ["**/*.jinja", "**/*.jinja2"]
+  },
+  // Associate .jinja files with Jinja template language
+  "files.associations": {
+    "*.jinja": "jinja",
+    "*.jinja2": "jinja",
+    "Dockerfile.jinja": "jinja"
+  }
+}
