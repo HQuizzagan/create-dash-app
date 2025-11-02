@@ -1,0 +1,99 @@
+# ============================================================================
+# PROJECT METADATA (PEP 621)
+# ============================================================================
+[project]
+name = "{{ project_name.lower().replace(' ', '-').replace('_', '-') }}"
+version = "0.1.0"
+description = "{{ description }}"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dash>=3.2.0",
+    "dash-bootstrap-components>=2.0.4",
+    "plotly>=5.24.0",
+    "pandas>=2.2.0",
+    "gunicorn>=23.0.0",
+    "python-dotenv>=1.2.1",
+]
+
+{% if include_tests %}
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "ruff>=0.14.3",
+    "pre-commit>=4.3.0",
+]
+{% endif %}
+
+# ============================================================================
+# BUILD SYSTEM CONFIGURATION
+# ============================================================================
+# Configure setuptools to find packages in src/ directory
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+namespaces = false
+
+# ============================================================================
+# CONSOLE SCRIPTS (ENTRY POINTS)
+# ============================================================================
+# Entry point for running the application via src/app.py
+# This allows running the app via: {{ project_name.lower().replace(' ', '-').replace('_', '-') }}
+# Alternatively, you can run: python -m src.app or uv run python -m src.app
+# Note: After uv sync, the command will be available in your PATH
+[project.scripts]
+{{ project_name.lower().replace(' ', '-').replace('_', '-') }} = "src.app:main"
+
+# ============================================================================
+# RUFF CONFIGURATION
+# ============================================================================
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+indent-width = 4
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`) codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+# I - isort
+select = ["E", "F", "B", "I"]
+ignore = ["B008"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Enable Ruff's formatter.
+preview = true
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Enable auto-formatting of code examples in docstrings. Markdown,
+# reStructuredText code/literal blocks and doctests are all supported.
+docstring-code-format = true
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
+docstring-code-line-length = "dynamic"
+
+[tool.ruff.lint.isort]
+known-third-party = ["dash", "dash_bootstrap_components", "plotly", "pandas", "gunicorn"]
+

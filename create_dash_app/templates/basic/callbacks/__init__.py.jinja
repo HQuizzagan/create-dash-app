@@ -1,0 +1,167 @@
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+from dash import Dash
+
+
+class CallbackRegistry:
+    """
+    This holds a collection of ALL the callback functions
+    declared and registered throughout the app using the
+    defined decorator `@register_callback`.
+    """
+
+    def __init__(self, app: Optional[Dash] = None) -> None:
+        """
+        Initialize the callback registry.
+
+        Args:
+            app: The Dash application instance
+
+        Attributes:
+            app: The Dash application instance
+            callbacks: A list of tuples containing the callback function arguments, keyword
+            arguments, and the callback function itself
+            _initialised: A boolean indicating if the registry has been initialised
+
+        The self.callbacks is a LIST OF TUPLES with three expected elements
+            - 0: tuple of `Input` and `Output` objects from `dash`
+            - 1: dictionary of keyword arguments for the callback function
+            - 2: the callback function itself
+        """
+        self.app = app
+        self.callbacks: List[Tuple[Tuple[Any, ...], Dict[str, Any], Callable[..., Any]]] = []
+        self._initialised = app is not None
+
+    def initialise(self, app: Dash) -> None:
+        """
+        Initialise the Callback Registry with the Dash app instance.
+
+        Args:
+            app: the Dash app instance
+        """
+        if self._initialised:
+            raise RuntimeError("CallbackRegistry is already initialised!")
+
+        self.app = app
+        self._initialised = True
+
+    def callback(self, *args: Any, **kwargs: Any) -> Callable[..., Any]:
+        """
+        Decorator function to REGISTER a callback function.
+
+        Callback modules use this decorator to register their callbacks:
+
+        ```python
+        @register_callback(Output(...), Input(...))
+        def my_callback(...):
+            ...
+        ```
+
+        Args:
+            *args: Variable length argument list
+            **kwargs: Arbitrary keyword arguments
+
+        Returns:
+            The decorator function that registers the callback function.
+        """
+
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+            # Add the callback function to the registry
+            self.callbacks.append((args, kwargs, func))
+            return func
+
+        return decorator
+
+    def discover(self, pattern: Optional[str] = None) -> None:
+        """
+        Discover and import callback modules from the callbacks directory.
+
+        This walks the callbacks directory tree and imports all modules,
+        which triggers the @register_callback decorators to execute.
+
+        Args:
+            pattern: Optional glob pattern to filter discovered modules (e.g., "analytics*")
+        """
+        if not self._initialised:
+            raise RuntimeError("CallbackRegistry is not initialised! Call `initialise(app)` first.")
+
+        from ._discovery import _discover_modules
+
+        _discover_modules(pattern)
+
+    def register_all(self) -> None:
+        """
+        Register all collected callbacks with the Dash app.
+
+        Args:
+            None: no arguments are required
+        """
+        if not self._initialised:
+            raise RuntimeError("CallbackRegistry is not initialised! Call `initialise(app)` first.")
+
+        if not self.callbacks:
+            print("No callbacks to register.")
+            return
+
+        print(f"Registering {len(self.callbacks)} callback(s)...")
+        for args, kwargs, callback_func in self.callbacks:
+            # Extract module name (clean up the full module path)
+            module_name = (
+                callback_func.__module__.split(".")[-1]
+                if "." in callback_func.__module__
+                else callback_func.__module__
+            )
+            print(f"  ✓ Registering callback '{callback_func.__name__}' from '{module_name}'")
+
+            # Attach the callback function to the actual INSTANCE of the app
+            self.app.callback(*args, **kwargs)(callback_func)
+
+        print(f"Successfully registered {len(self.callbacks)} callback(s).")
+
+
+# Create a module-level UNINITIALISED instance (private implementation detail)
+_callback_registry = CallbackRegistry()
+
+
+# Expose module-level decorator for registering callbacks
+def register_callback(*args: Any, **kwargs: Any) -> Callable[..., Any]:
+    """
+    Decorator to register a callback function.
+
+    Callback modules use this decorator to register their callbacks:
+
+    ```python
+    @register_callback(Output(...), Input(...))
+    def my_callback(...):
+        ...
+    ```
+
+    Args:
+        *args: Variable length argument list (Output, Input, State, etc.)
+        **kwargs: Arbitrary keyword arguments (prevent_initial_call, etc.)
+
+    Returns:
+        The decorator function that registers the callback function.
+    """
+    return _callback_registry.callback(*args, **kwargs)
+
+
+# Expose a function to initialise the registry with the app instance
+def auto_register_callbacks(app: Dash, pattern: Optional[str] = None) -> None:
+    """Auto-discover AND auto-register all callbacks in the `callbacks/` directory
+    with the Dash app instance.
+
+    This is the single entry point for registering callbacks. It:
+        1. Initialises the registry with the app instance
+        2. Discovers and imports all callback modules (populates registry)
+        3. Registers all collected callbacks with the app
+
+    Args:
+        app (Dash): The Dash app instance
+        pattern (Optional[str]): Optional glob pattern to filter discovered modules
+            (e.g., "analytics*"). Defaults to None.
+    """
+
+    _callback_registry.initialise(app)
+    _callback_registry.discover(pattern)
+    _callback_registry.register_all()

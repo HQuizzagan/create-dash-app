@@ -1,0 +1,159 @@
+from typing import Callable, List, Optional
+
+from dash import dcc
+
+
+class StoreRegistry:
+    """
+    This holds a collection of ALL the store functions
+    declared and registered throughout the app using the
+    defined decorator `@register_store`.
+    """
+
+    def __init__(self):
+        self.stores: List[Callable[[], List[dcc.Store]]] = []
+
+    def register(self, func: Callable[[], List[dcc.Store]]) -> Callable[[], List[dcc.Store]]:
+        """
+        Decorator to register a store creation function.
+
+        Store modules use this decorator to register their store creators:
+
+        ```python
+        @register_store
+        def create_data_stores():
+            return [
+                dcc.Store(id="raw-data-store", storage_type="memory"),
+                dcc.Store(id="processed-data-store", storage_type="session"),
+            ]
+        ```
+
+        Args:
+            func: A function that returns a list of dcc.Store instances
+
+        Returns:
+            The same function (for use as a decorator)
+        """
+        self.stores.append(func)
+        return func
+
+    def discover(self, pattern: Optional[str] = None) -> None:
+        """
+        Discover and import store modules from the stores directory.
+
+        This walks the stores directory tree and imports all modules,
+        which triggers the @register_store decorators to execute.
+
+        Args:
+            pattern: Optional glob pattern to filter discovered modules (e.g., "data*")
+        """
+        from ._discovery import _discover_store_modules
+
+        _discover_store_modules(pattern)
+
+    def create_all(self) -> List[dcc.Store]:
+        """
+        Create all the registered stores.
+
+        Returns:
+            A flat list of all dcc.Store instances from all registered store creators.
+        """
+        if not self.stores:
+            print("No stores to create.")
+            return []
+
+        print(f"Creating stores from {len(self.stores)} store creator(s)...")
+        all_stores = []
+
+        for create_fcn in self.stores:
+            # Extract module name (clean up the full module path)
+            module_name = (
+                create_fcn.__module__.split(".")[-1]
+                if "." in create_fcn.__module__
+                else create_fcn.__module__
+            )
+            
+            # Create stores from this function
+            stores = create_fcn()
+            all_stores.extend(stores)
+            
+            # Log the stores created
+            store_ids = [store.id for store in stores]
+            print(f"  ✓ Created {len(stores)} store(s) from '{module_name}': {', '.join(store_ids)}")
+
+        print(f"Successfully created {len(all_stores)} store(s).")
+        return all_stores
+
+
+# Create a module-level instance (private implementation detail)
+_store_registry = StoreRegistry()
+
+
+# Expose module-level decorator for registering stores
+def register_store(func: Callable[[], List[dcc.Store]]) -> Callable[[], List[dcc.Store]]:
+    """
+    Decorator to register a store creation function.
+
+    Store modules use this decorator to register their store creators:
+
+    ```python
+    @register_store
+    def create_data_stores():
+        return [
+            dcc.Store(id="raw-data-store", storage_type="memory"),
+            dcc.Store(id="processed-data-store", storage_type="session"),
+        ]
+    ```
+
+    Args:
+        func: A function that returns a list of dcc.Store instances
+
+    Returns:
+        The same function (for use as a decorator)
+    """
+    return _store_registry.register(func)
+
+
+# Public API functions
+def auto_create_stores(pattern: Optional[str] = None) -> List[dcc.Store]:
+    """Auto-discover AND auto-create all stores in the `stores/` directory.
+
+    This is the single entry point for creating stores. It:
+        1. Discovers and imports all store modules (populates registry)
+        2. Creates all registered stores and returns them as a flat list
+
+    Args:
+        pattern (Optional[str]): Optional glob pattern to filter discovered modules
+            (e.g., "data*"). Defaults to None.
+
+    Returns:
+        A flat list of all dcc.Store instances from all registered store creators.
+    """
+    _store_registry.discover(pattern)
+    return _store_registry.create_all()
+
+
+def discover_stores(pattern: Optional[str] = None) -> None:
+    """Discover and import store modules (populates registry).
+
+    This is useful for advanced usage where you want to control
+    discovery and creation separately.
+
+    Args:
+        pattern (Optional[str]): Optional glob pattern to filter discovered modules
+            (e.g., "data*"). Defaults to None.
+    """
+    _store_registry.discover(pattern)
+
+
+def create_all_stores() -> List[dcc.Store]:
+    """Create all registered stores.
+
+    This is useful for advanced usage where you want to control
+    discovery and creation separately.
+
+    Returns:
+        A flat list of all dcc.Store instances from all registered store creators.
+    """
+    return _store_registry.create_all()
+

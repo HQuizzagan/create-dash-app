@@ -1,0 +1,15 @@
+from dash import Input, Output
+
+from . import register_callback
+
+
+@register_callback(Output("output-id", "children"), Input("input-id", "value"))
+def update_output(input_value):
+    """Sample callback that updates output based on input value.
+
+    This callback fires whenever the user types in the input field.
+    The input value is displayed in the output div.
+    """
+    if input_value is None or input_value == "":
+        return "Type something in the input above to see the callback in action!"
+    return f"You entered: {input_value}"

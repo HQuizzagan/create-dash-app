@@ -1,0 +1,92 @@
+// Import fonts
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+// Define colour variables
+// Be careful when using with CSS frameworks like Tailwind or Bootstrap, as they may have their own colour variables.
+$primary: #003049;  // Dark blue
+$secondary: #f77f00;  // Orange
+$accent: #d62828;  // red
+$success: #02b065; // green
+$background-color: #f5f6fa;  // Light gray
+$text-color: #111213;  // Dark gray
+$text-dark-mode: #f9fdff; // Grayish white
+
+// Define font variables
+$font-family-heading: 'Merriweather', serif;
+$font-family-body: 'Raleway', sans-serif;
+
+// Define font sizes
+$font-size-small: 12px;
+$font-size-medium: 16px;
+$font-size-large: 20px;
+
+:root {
+    --primary: $primary;
+    --secondary: $secondary;
+    --accent: $accent;
+    --success: $success;
+    --background-color: $background-color;
+    --text-color: $text-color;
+    --text-dark-mode: $text-dark-mode;
+    --font-family-heading: $font-family-heading;
+    --font-family-body: $font-family-body;
+    --font-size-small: $font-size-small;
+    --font-size-medium: $font-size-medium;
+    --font-size-large: $font-size-large;
+}
+
+/* Tailwind-style Utility Classes Using Your Custom Colors */
+.bg-primary { background-color: var(--primary) !important; }
+.bg-secondary { background-color: var(--secondary) !important; }
+.bg-accent { background-color: var(--accent) !important; }
+.bg-success { background-color: var(--success) !important; }
+.text-primary { color: var(--primary) !important; }
+.text-secondary { color: var(--secondary) !important; }
+.text-accent { color: var(--accent) !important; }
+.text-success { color: var(--success) !important; }
+
+/* Gradient Utilities */
+.bg-gradient-primary-accent {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%) !important;
+}
+
+.bg-gradient-secondary-accent {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%) !important;
+}
+
+/* Font and Background Utilities */
+.font-custom { font-family: var(--font-family-body) !important; }
+.bg-custom { background-color: var(--background-color) !important; }
+
+/* Typography Classes */
+.font-heading { font-family: var(--font-family-heading) !important; }
+.font-body { font-family: var(--font-family-body) !important; }
+
+/* Global Styles */
+body, html {
+    font-family: var(--font-family-body) !important;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-heading) !important;
+}
+
+/* Override Tailwind's default font families to use our custom fonts */
+.font-serif {
+    font-family: var(--font-family-heading) !important;
+}
+
+.font-sans {
+    font-family: var(--font-family-body) !important;
+}
+
+#react-entry-point {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}

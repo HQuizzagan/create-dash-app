@@ -1,0 +1,37 @@
+"""
+This file contains the configuration for the {{ project_name }} project
+which is responsible for
+    - loading environment variables from the project root
+    - providing a way to check if the application is running in development mode
+"""
+
+import os
+from pathlib import Path
+from typing import List
+
+from dotenv import load_dotenv
+
+
+def load_env_from_root() -> None:
+    """
+    Load environment variables from project root based on `FLASK_ENV`.
+
+    Order:
+    - .env.<FLASK_ENV>
+    - .env.local
+    - .env
+    """
+    stage = os.getenv("FLASK_ENV", "development").lower().strip()
+    project_root = Path(__file__).resolve().parent.parent
+    candidates: List[Path] = [
+        project_root / f".env.{stage}",
+        project_root / ".env.local",
+        project_root / ".env",
+    ]
+    for candidate in candidates:
+        if candidate.is_file() and load_dotenv(dotenv_path=str(candidate)):
+            break
+
+
+def is_development() -> bool:
+    return os.getenv("FLASK_ENV", "development").lower().strip() == "development"

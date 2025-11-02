@@ -1,0 +1,102 @@
+"""
+Build utilities for asset compilation and preprocessing.
+
+This module contains helper functions for building assets like Tailwind CSS
+before serving the application. These utilities are typically called during
+development mode to ensure assets are up-to-date.
+"""
+
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+
+def build_tailwind_css() -> bool:
+    """
+    Build Tailwind CSS in production mode before serving the app.
+
+    This function:
+    - Checks if package.json exists and contains the build:css:prod script
+    - Runs `npm run build:css:prod` synchronously
+    - Handles errors gracefully (warns but doesn't crash if npm/node unavailable)
+    - Only runs once per session (uses environment variable to prevent re-runs on reload)
+
+    Returns:
+        bool: True if build succeeded or was skipped, False if build failed
+    """
+    # Prevent multiple builds on reload (use_reloader=True in dev mode)
+    if os.environ.get("TAILWIND_BUILT"):
+        return True
+
+    # Get project root (parent of src/)
+    project_root = Path(__file__).resolve().parent.parent
+    package_json_path = project_root / "package.json"
+
+    # Check if package.json exists
+    if not package_json_path.exists():
+        return True  # No Tailwind setup, skip silently
+
+    # Check if build:css:prod script exists
+    try:
+        with open(package_json_path, "r", encoding="utf-8") as f:
+            package_data = json.load(f)
+            scripts = package_data.get("scripts", {})
+            if "build:css:prod" not in scripts:
+                return True  # Script doesn't exist, skip silently
+    except (json.JSONDecodeError, KeyError):
+        # Invalid package.json, skip
+        return True
+
+    # Check if npm is available
+    try:
+        subprocess.run(
+            ["npm", "--version"],
+            capture_output=True,
+            check=True,
+            timeout=5,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        print(
+            "⚠️  Warning: npm not found. Skipping Tailwind CSS build.",
+            file=sys.stderr,
+        )
+        return True  # Don't fail if npm isn't available
+
+    # Run the build command
+    print("🔨 Building Tailwind CSS (production mode)...", file=sys.stdout)
+    try:
+        result = subprocess.run(
+            ["npm", "run", "build:css:prod"],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            timeout=30,  # 30 second timeout
+            check=True,
+        )
+        print("✅ Tailwind CSS built successfully!", file=sys.stdout)
+        if result.stdout:
+            print(result.stdout, file=sys.stdout)
+        os.environ["TAILWIND_BUILT"] = "true"
+        return True
+    except subprocess.CalledProcessError as e:
+        print(
+            f"⚠️  Warning: Tailwind CSS build failed: {e.stderr}",
+            file=sys.stderr,
+        )
+        # Don't crash the app, just warn
+        return False
+    except subprocess.TimeoutExpired:
+        print(
+            "⚠️  Warning: Tailwind CSS build timed out after 30 seconds.",
+            file=sys.stderr,
+        )
+        return False
+    except Exception as e:
+        print(
+            f"⚠️  Warning: Unexpected error building Tailwind CSS: {e}",
+            file=sys.stderr,
+        )
+        return False
+

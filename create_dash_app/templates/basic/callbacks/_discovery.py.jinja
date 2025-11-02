@@ -1,0 +1,41 @@
+import fnmatch
+import importlib
+import os
+from typing import Optional
+
+
+def _discover_modules(pattern: Optional[str] = None) -> None:
+    """
+    Internal: discover and import callback modules from the callbacks directory.
+
+    This walks the callbacks directory tree and imports all modules,
+    which triggers the @register_callback decorators to execute.
+
+    Args:
+        pattern: Optional glob pattern to filter discovered modules (e.g., "analytics*")
+    """
+    callbacks_dir = os.path.dirname(__file__)
+
+    # Get the `src/` directory (parent of callbacks directory)
+    src_dir = os.path.dirname(callbacks_dir)
+    
+    # Get the package name (basename of `src_dir`, which is "src/")
+    package_prefix = os.path.basename(src_dir)
+
+    for root, dirs, files in os.walk(callbacks_dir):
+        # Remove any directories that start with . or __
+        dirs[:] = [d for d in dirs if not (d.startswith(".") or d.startswith("__"))]
+
+        # Get the relative directory path from `src/` to the current root
+        rel_dir = os.path.relpath(root, src_dir)
+
+        # Get the package name (convert path separators to dots)
+        package = rel_dir.replace(os.sep, ".")
+
+        # Import all modules that end with .py and are not __init__.py
+        for filename in files:
+            if filename.endswith(".py") and filename != "__init__.py":
+                # Prepend package prefix (e.g., "src") to create full module path
+                module_name = f"{package_prefix}.{package}.{filename[:-3]}"
+                if pattern is None or fnmatch.fnmatch(module_name, f"*{pattern}*"):
+                    importlib.import_module(module_name)

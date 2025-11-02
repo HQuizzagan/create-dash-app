@@ -1,0 +1,35 @@
+from dash import dcc
+
+from . import register_store
+
+
+@register_store
+def create_sample_stores():
+    """Sample store creation function that returns a list of stores.
+
+    This function creates stores for managing application state.
+    Stores can be used to persist data across callbacks and page navigation.
+    """
+    return [
+        dcc.Store(
+            id="sample-data-store",
+            storage_type="memory",  # Options: "memory", "session", "local"
+            data={"name": "John Doe"},
+        ),
+        dcc.Store(
+            id="sample-session-store",
+            storage_type="session",  # Persists across page refreshes but not browser restarts
+            data={"name": "John Doe", "email": "john.doe@example.com"},
+        ),
+        dcc.Store(
+            id="sample-local-store",
+            storage_type="local",  # Persists across browser restarts
+            data={
+                "name": "John Doe",
+                "email": "john.doe@example.com",
+                "age": 30,
+                "city": "New York",
+            },
+        ),
+    ]
+

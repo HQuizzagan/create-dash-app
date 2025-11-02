@@ -1,0 +1,29 @@
+FROM python:3.13-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV ENVIRONMENT=production
+
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN pip install uv
+
+# Copy project files
+COPY pyproject.toml /app/
+COPY src /app/src
+COPY README.md /app/
+
+# Resolve and install deps via uv
+RUN uv sync --frozen || uv pip install -e .
+
+EXPOSE {{ port }}
+# CMD ["uv", "run", "python", "-m", "src.app"]
+CMD ["uv", "run", "gunicorn", "src.app:server", "--bind", "0.0.0.0:{{ port }}"]

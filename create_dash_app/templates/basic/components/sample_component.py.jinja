@@ -1,0 +1,39 @@
+"""
+This is just a SAMPLE component using the opinionated design patterns
+this CLI package decided to use (i.e. React-style functional components).
+
+EXAMPLE USAGE:
+
+```python
+from components.sample import SampleComponent
+from dash import html
+
+# Use in a layout such as in ANOTHER component, page, or `app.py` main layout.
+# It should be INSTANTIATED inside a list of `children`, not directly.
+layout = html.Div([
+    SampleComponent("Hello, World!"),
+])
+```
+
+Or use directly in another component's children:
+
+```python
+html.Div(children=[SampleComponent("Hello, World!"), ...])
+```
+"""
+
+from dash import html
+
+
+def SampleComponent(title: str) -> html.Div:
+    """Sample component.
+
+    Args:
+        title: The title text to display in the component.
+
+    Returns:
+        A Dash html.Div component containing an H1 element with the title.
+    """
+    return html.Div([
+        html.H1(title, className="text-xl uppercase"),
+    ])

@@ -1,0 +1,79 @@
+import dash_bootstrap_components as dbc
+from dash import html
+
+
+def features_modal():
+    # Bootstrap Modal for Feature Cards
+    return dbc.Modal(
+        [
+            dbc.ModalHeader(
+                dbc.ModalTitle("Feature Cards", className="font-serif"),
+            ),
+            dbc.ModalBody(
+                className="p-4",
+                children=[
+                    html.Div(
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4",
+                        children=[
+                            # Card 1 - Dark Turquoise
+                            html.Div(
+                                className="bg-[#00CED1] rounded-lg shadow-lg p-6 border-2 border-[#00CED1] text-white",
+                                children=[
+                                    html.I(className="fas fa-bolt text-3xl mb-3"),
+                                    html.H3(
+                                        "Fast Performance",
+                                        className="text-lg font-bold mb-2 font-serif",
+                                    ),
+                                    html.P(
+                                        "Lightning-fast callbacks and real-time updates for seamless user experience.",
+                                        className="text-sm font-sans",
+                                    ),
+                                ],
+                            ),
+                            # Card 2 - Light Salmon
+                            html.Div(
+                                className="bg-[#FFA07A] rounded-lg shadow-lg p-6 border-2 border-[#FFA07A] text-white",
+                                children=[
+                                    html.I(className="fas fa-palette text-3xl mb-3"),
+                                    html.H3(
+                                        "Customizable",
+                                        className="text-lg font-bold mb-2 font-serif",
+                                    ),
+                                    html.P(
+                                        "Beautiful themes with custom colors and styles to match your brand.",
+                                        className="text-sm font-sans",
+                                    ),
+                                ],
+                            ),
+                            # Card 3 - Deep Sky Blue
+                            html.Div(
+                                className="bg-[#00BFFF] rounded-lg shadow-lg p-6 border-2 border-[#00BFFF] text-white",
+                                children=[
+                                    html.I(className="fas fa-code text-3xl mb-3"),
+                                    html.H3(
+                                        "Developer-Friendly",
+                                        className="text-lg font-bold mb-2 font-serif",
+                                    ),
+                                    html.P(
+                                        "Clean code patterns and React-style components for easy development.",
+                                        className="text-sm font-sans",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            dbc.ModalFooter(
+                dbc.Button(
+                    "Close",
+                    id="close-modal-button",
+                    className="btn-secondary",
+                    n_clicks=0,
+                ),
+            ),
+        ],
+        id="feature-cards-modal",
+        is_open=False,
+        size="lg",
+    )

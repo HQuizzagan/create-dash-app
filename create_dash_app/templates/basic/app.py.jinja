@@ -1,0 +1,141 @@
+"""
+In this opinionated template, we use the following design choices:
+    - `suppress_callback_exceptions` is set to `True` to prevent errors when callback references are
+    not YET found. This is the choice because the layout is dynamically generated but
+            - all the callbacks are registered all at once,
+            - but the layout (i.e. actual ref IDs) are not yet known at the time of registration.
+        This is very useful with multi-page apps where different pages show different components
+        where IDs may not yet be present. Same reasoning with conditional layouts where some IDs
+        may not always be in the DOM.
+    - `prevent_initial_callbacks` is set to `True` to prevent callbacks from being fired
+        immediately on app startup. Instead, they only fire when a user changes the input.
+"""
+
+import os
+import webbrowser
+from threading import Timer
+from typing import Any, cast
+
+import dash
+import dash_bootstrap_components as dbc
+from dash import html
+
+{% if "tailwind" in styling %}
+from .build import build_tailwind_css
+{% endif %}
+from .callbacks import auto_register_callbacks
+from .config import is_development
+from .stores import auto_create_stores
+
+app = dash.Dash(
+    __name__,
+    title="{{ project_name }}",
+    description="{{ description }}",
+    use_pages={% if include_pages %}True{% else %}False{% endif %},
+    suppress_callback_exceptions=True,
+    prevent_initial_callbacks=True,
+    external_stylesheets=[
+        "./assets/styles.scss",
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css",
+        # Utility-first styling frameworks
+        dbc.themes.BOOTSTRAP,
+        dbc.icons.BOOTSTRAP,
+{% if "tailwind" in styling %}
+        "./assets/tailwind-output.css",  # Compiled Tailwind CSS
+{% endif %}
+{% if "bulma" in styling %}
+        "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css",
+{% endif %}
+{% if "daisyui" in styling %}
+        "https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css",
+{% endif %}
+{% if "unocss" in styling %}
+        "https://cdn.jsdelivr.net/npm/unocss@0.64.0/dist/index.min.css",
+{% endif %}
+{% if "windi" in styling %}
+        "https://cdn.jsdelivr.net/npm/windicss@4.0.12/dist/windi.min.css",
+{% endif %}
+        # Animation libraries
+{% if "animate.css" in animations %}
+        "https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css",
+{% endif %}
+{% if "animejs" in animations %}
+        "https://cdn.jsdelivr.net/npm/animejs@3.2.2/anime.min.css",
+{% endif %}
+{% if "scrollreveal" in animations %}
+        "https://cdn.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.css",
+{% endif %}
+{% if "animatecss" in animations %}
+        "https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css",
+{% endif %}
+{% if "motion" in animations %}
+        "https://cdn.jsdelivr.net/npm/motion@11.12.2/dist/motion.min.css",
+{% endif %}
+    ],
+    assets_folder="assets",
+)
+
+# Initialise a baseline layout for the page
+{% if include_pages %}
+# Multi-page mode: use page container
+app.layout = html.Div([
+    # Stores for managing application state
+    *auto_create_stores(),
+    dash.page_container,
+])
+{% else %}
+# Single-page mode: use homepage layout directly
+from .pages.homepage import layout as homepage_layout
+
+app.layout = html.Div([
+    # Stores for managing application state
+    *auto_create_stores(),
+    # Main content layout
+    homepage_layout,
+])
+{% endif %}
+
+# Auto-register all callbacks with the app
+auto_register_callbacks(app)
+
+# Get the actual server instance (for production)
+server = app.server  # type: ignore
+
+PORT = int(os.environ.get("PORT", 8050))
+HOST = os.environ.get("HOST", "127.0.0.1")
+
+# AUTOMATIC BROWSER OPEN (for development only)
+if is_development() and not os.environ.get("BROWSER_OPENED"):
+    # Function to open the app in the browser after a slight delay
+    def open_browser():
+        """Open the app in the browser after a slight delay."""
+        webbrowser.open_new(f"http://{HOST}:{PORT}/")
+
+    # Schedule the browser opening after a small delay
+    Timer(1, open_browser).start()
+
+    # Set an environment variable to prevent opening the browser again
+    os.environ["BROWSER_OPENED"] = "true"
+
+
+def main() -> None:
+    """
+    Main entry point for running the Dash application.
+    This function is used by the console script defined in pyproject.toml.
+    """
+    # Build Tailwind CSS in development mode before serving
+{% if "tailwind" in styling %}
+    if is_development():
+        build_tailwind_css()
+{% endif %}
+    
+    cast(Any, app).run(
+        debug=is_development(),
+        host=HOST,
+        port=PORT,
+        use_reloader=is_development(),
+    )
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,145 @@
+from dash import Input, Output, State, html
+
+from . import register_callback
+
+
+@register_callback(
+    Output("form-output", "children"),
+    Input("submit-button", "n_clicks"),
+    State("name-input", "value"),
+    State("dropdown-select", "value"),
+    State("message-input", "value"),
+    prevent_initial_call=True,
+)
+def update_form_output(n_clicks, name, dropdown, message):
+    """Sample callback that updates form output based on form inputs.
+
+    This callback fires when the submit button is clicked.
+    It displays all the form values in a formatted output.
+    """
+    if n_clicks == 0:
+        return html.Div(
+            "Fill out the form above to see the output here!",
+            className="text-center text-gray-500 italic",
+        )
+
+    if not name and not dropdown and not message:
+        return html.Div(
+            [
+                html.I(className="fas fa-exclamation-circle mr-2"),
+                " Please fill out at least one field before submitting!",
+            ],
+            className="text-center text-orange-600 italic",
+        )
+
+    output_items = []
+
+    if name:
+        output_items.append(
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.I(className="fas fa-user text-blue-600 mr-2"),
+                            html.Span("Name:", className="font-semibold text-gray-700"),
+                        ],
+                        className="mb-1",
+                    ),
+                    html.Div(
+                        name,
+                        className="text-gray-800 font-sans pl-6",
+                    ),
+                ],
+                className="mb-3 pb-3 border-b border-gray-300",
+            ),
+        )
+
+    if dropdown:
+        output_items.append(
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.I(className="fas fa-list text-purple-600 mr-2"),
+                            html.Span(
+                                "Selected Option:",
+                                className="font-semibold text-gray-700",
+                            ),
+                        ],
+                        className="mb-1",
+                    ),
+                    html.Div(
+                        dropdown,
+                        className="text-gray-800 font-sans pl-6",
+                    ),
+                ],
+                className="mb-3 pb-3 border-b border-gray-300",
+            ),
+        )
+
+    if message:
+        output_items.append(
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.I(className="fas fa-comment text-green-600 mr-2"),
+                            html.Span(
+                                "Message:",
+                                className="font-semibold text-gray-700",
+                            ),
+                        ],
+                        className="mb-1",
+                    ),
+                    html.Div(
+                        message,
+                        className="text-gray-800 font-sans pl-6 italic",
+                    ),
+                ],
+                className="mb-2",
+            ),
+        )
+
+    return html.Div(
+        output_items,
+        className="space-y-4",
+    )
+
+
+@register_callback(
+    Output("counter-display", "children"),
+    Input("increment-button", "n_clicks"),
+    Input("decrement-button", "n_clicks"),
+    prevent_initial_call=True,
+)
+def update_counter(increment_clicks, decrement_clicks):
+    """Sample callback that updates counter based on button clicks.
+
+    This callback fires when either the increment or decrement button is clicked.
+    It calculates the current counter value based on the difference between clicks.
+    """
+    if increment_clicks is None:
+        increment_clicks = 0
+    if decrement_clicks is None:
+        decrement_clicks = 0
+
+    counter_value = increment_clicks - decrement_clicks
+    return str(counter_value)
+
+
+@register_callback(
+    Output("feature-cards-modal", "is_open"),
+    Input("open-modal-button", "n_clicks"),
+    Input("close-modal-button", "n_clicks"),
+    State("feature-cards-modal", "is_open"),
+    prevent_initial_call=True,
+)
+def toggle_modal(open_clicks, close_clicks, is_open):
+    """Toggle modal visibility based on button clicks.
+
+    This callback fires when either the open or close button is clicked.
+    It toggles the modal's is_open state.
+    """
+    if open_clicks or close_clicks:
+        return not is_open
+    return is_open
