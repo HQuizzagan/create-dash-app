@@ -10,6 +10,80 @@ This is the official documentation for the **`create-dash-app`** CLI package. It
    - examples of common use cases, and
    - the API reference for the CLI package.
 
+Quick Visual Overview
+---------------------
+
+See the CLI in action and understand the generated architecture at a glance:
+
+Demo Videos
+^^^^^^^^^^^
+
+**CLI Demo** — Watch how to create a new Dash app with the CLI:
+
+.. raw:: html
+
+   <video width="800" controls style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 1em 0;">
+     <source src="_static/CLI Demo.mov" type="video/quicktime">
+     <source src="_static/CLI Demo.mov" type="video/mp4">
+     Your browser does not support the video tag. <a href="_static/CLI Demo.mov" download>Download the video</a> instead.
+   </video>
+
+.. note::
+   If the video doesn't play in your browser, try downloading it directly. `.mov` files work best in Safari and may require conversion to MP4 for broader browser compatibility.
+
+**Functionality Demo** — See the auto-discovery and component system in action:
+
+.. raw:: html
+
+   <video width="800" controls style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 1em 0;">
+     <source src="_static/Functionality Demo.mov" type="video/quicktime">
+     <source src="_static/Functionality Demo.mov" type="video/mp4">
+     Your browser does not support the video tag. <a href="_static/Functionality Demo.mov" download>Download the video</a> instead.
+   </video>
+
+.. note::
+   If the video doesn't play in your browser, try downloading it directly. `.mov` files work best in Safari and may require conversion to MP4 for broader browser compatibility.
+
+Architecture Overview
+^^^^^^^^^^^^^^^^^^^^^
+
+The generated scaffold follows a clear, opinionated structure. Here's what each part looks like:
+
+**Application Entry Point** — The main ``app.py`` file that ties everything together:
+
+.. image:: assets/app.png
+   :alt: Application structure showing app.py
+   :width: 800
+   :align: center
+
+**Callbacks** — Auto-discovered callback functions organized by feature:
+
+.. image:: assets/callback.png
+   :alt: Callback structure showing auto-discovery
+   :width: 800
+   :align: center
+
+**Components** — Reusable functional components for building UIs:
+
+.. image:: assets/component.png
+   :alt: Component structure showing functional components
+   :width: 800
+   :align: center
+
+**Pages** — Page-level components that compose your application:
+
+.. image:: assets/page.png
+   :alt: Page structure showing page organization
+   :width: 800
+   :align: center
+
+**Stores** — Auto-discovered state management stores:
+
+.. image:: assets/store.png
+   :alt: Store structure showing state management
+   :width: 800
+   :align: center
+
 Design Philosophy
 ----------------------
 
