@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 project = "create-dash-app CLI"
 copyright = "2025, Harlee Quizzagan (HQuizzagan)"
 author = "Harlee Quizzagan (HQuizzagan)"
-release = "v.1.0.dev20251106"
+release = "v0.1.dev20251106"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

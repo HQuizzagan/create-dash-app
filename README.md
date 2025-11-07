@@ -15,7 +15,7 @@ A CLI tool for generating opinionated Plotly Dash application scaffolds with aut
 ## Installation
 
 ```bash
-uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v1.0.dev20251106
+uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
 ```
 
 ## Quick Start

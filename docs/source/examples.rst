@@ -1,10 +1,10 @@
 **Examples and Use Cases**
-======================
+==========================
 
 This section provides practical examples and common use cases for the ``create-dash-app`` CLI and the generated Dash applications.
 
 **Creating a Data Analytics Dashboard**
-------------------------------------
+---------------------------------------
 
 **Scenario**: You need to create a dashboard for visualizing sales data.
 
@@ -71,7 +71,7 @@ This section provides practical examples and common use cases for the ``create-d
           ]
 
 **Creating a Multi-Page Application**
-----------------------------------
+--------------------------------------
 
 **Scenario**: You need an application with multiple pages (Home, Analytics, Settings).
 
@@ -119,7 +119,7 @@ This section provides practical examples and common use cases for the ``create-d
 3. Navigation is automatically handled by Dash Pages. The pages are registered and accessible via their paths.
 
 **Using Custom Styling**
---------------------
+------------------------
 
 **Scenario**: You want to use a custom CSS framework or add your own styles.
 
@@ -141,7 +141,7 @@ This section provides practical examples and common use cases for the ``create-d
 3. The styles are automatically included in your application. For Tailwind CSS, you can also use utility classes directly in your components.
 
 **Adding Real-Time Updates**
--------------------------
+------------------------------
 
 **Scenario**: You need a dashboard that updates in real-time.
 
@@ -174,7 +174,7 @@ This section provides practical examples and common use cases for the ``create-d
       )
 
 **Deploying to Production**
------------------------
+----------------------------
 
 **Scenario**: You want to deploy your application using Docker.
 
@@ -202,7 +202,7 @@ This section provides practical examples and common use cases for the ``create-d
 4. The application uses gunicorn for production WSGI serving, configured in the Dockerfile.
 
 **Testing Your Application**
--------------------------
+-----------------------------
 
 **Scenario**: You want to write tests for your Dash application.
 
@@ -229,7 +229,7 @@ This section provides practical examples and common use cases for the ``create-d
       $ uv run pytest
 
 **Best Practices**
---------------
+-------------------
 
 **Organizing Callbacks**
    - Group related callbacks in the same file

@@ -10,7 +10,7 @@ Since the CLI package is currently in development and not yet published to `PyPI
 
 .. code-block:: bash
 
-   $ uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v1.0.dev20251106
+   $ uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
 
 **Prerequisites**:
 - Python 3.13+ installed
