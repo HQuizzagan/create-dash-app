@@ -18,31 +18,39 @@ See the CLI in action and understand the generated architecture at a glance:
 Demo Videos
 ^^^^^^^^^^^
 
+.. note::
+   **Video Hosting Note**: Due to file size limitations on ReadTheDocs, the videos may not play directly in the browser when viewing the online documentation. If the videos don't appear below, please use the download links provided. For the best experience, download the videos to watch them locally.
+
 **CLI Demo** — Watch how to create a new Dash app with the CLI:
 
 .. raw:: html
 
-   <video width="800" controls style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 1em 0;">
-     <source src="_static/CLI Demo.mov" type="video/quicktime">
-     <source src="_static/CLI Demo.mov" type="video/mp4">
-     Your browser does not support the video tag. <a href="_static/CLI Demo.mov" download>Download the video</a> instead.
-   </video>
+   <div style="margin: 1em 0;">
+     <video width="800" controls style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+       <source src="_static/CLI Demo.mov" type="video/quicktime">
+       <source src="_static/CLI Demo.mov" type="video/mp4">
+       Your browser does not support the video tag.
+     </video>
+   </div>
 
-.. note::
-   If the video doesn't play in your browser, try downloading it directly. `.mov` files work best in Safari and may require conversion to MP4 for broader browser compatibility.
+:download:`Download CLI Demo.mov (120MB) <_static/CLI Demo.mov>`
 
 **Functionality Demo** — See the auto-discovery and component system in action:
 
 .. raw:: html
 
-   <video width="800" controls style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 1em 0;">
-     <source src="_static/Functionality Demo.mov" type="video/quicktime">
-     <source src="_static/Functionality Demo.mov" type="video/mp4">
-     Your browser does not support the video tag. <a href="_static/Functionality Demo.mov" download>Download the video</a> instead.
-   </video>
+   <div style="margin: 1em 0;">
+     <video width="800" controls style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+       <source src="_static/Functionality Demo.mov" type="video/quicktime">
+       <source src="_static/Functionality Demo.mov" type="video/mp4">
+       Your browser does not support the video tag.
+     </video>
+   </div>
 
-.. note::
-   If the video doesn't play in your browser, try downloading it directly. `.mov` files work best in Safari and may require conversion to MP4 for broader browser compatibility.
+:download:`Download Functionality Demo.mov (79MB) <_static/Functionality Demo.mov>`
+
+.. tip::
+   **For ReadTheDocs Users**: If the videos don't play above, click the download links to save them locally. The videos are in QuickTime (`.mov`) format and work best in Safari. For broader browser compatibility, consider converting them to MP4 format.
 
 Architecture Overview
 ^^^^^^^^^^^^^^^^^^^^^
@@ -51,35 +59,35 @@ The generated scaffold follows a clear, opinionated structure. Here's what each 
 
 **Application Entry Point** — The main ``app.py`` file that ties everything together:
 
-.. image:: assets/app.png
+.. image:: _static/app.png
    :alt: Application structure showing app.py
    :width: 800
    :align: center
 
 **Callbacks** — Auto-discovered callback functions organized by feature:
 
-.. image:: assets/callback.png
+.. image:: _static/callback.png
    :alt: Callback structure showing auto-discovery
    :width: 800
    :align: center
 
 **Components** — Reusable functional components for building UIs:
 
-.. image:: assets/component.png
+.. image:: _static/component.png
    :alt: Component structure showing functional components
    :width: 800
    :align: center
 
 **Pages** — Page-level components that compose your application:
 
-.. image:: assets/page.png
+.. image:: _static/page.png
    :alt: Page structure showing page organization
    :width: 800
    :align: center
 
 **Stores** — Auto-discovered state management stores:
 
-.. image:: assets/store.png
+.. image:: _static/store.png
    :alt: Store structure showing state management
    :width: 800
    :align: center
