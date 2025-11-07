@@ -6,15 +6,35 @@ This guide provides everything you need to get started with the ``create-dash-ap
 Installation
 ------------
 
-Since the CLI package is currently in development and not yet published to `PyPI`, installation is done directly from the GitHub repository:
-
-.. code-block:: bash
-
-   $ uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
+Since the CLI package is currently in development and not yet published to `PyPI`, installation is done directly from the GitHub repository.
 
 **Prerequisites**:
 - Python 3.13+ installed
 - ``uv`` package manager installed (recommended) or ``pip``
+
+**Step 1: Create a Virtual Environment**
+
+It's recommended to install the CLI in a virtual environment to avoid conflicts with system packages:
+
+.. code-block:: bash
+
+   $ uv venv
+
+**Step 2: Activate the Virtual Environment**
+
+.. code-block:: bash
+
+   # On macOS/Linux:
+   $ source .venv/bin/activate
+
+   # On Windows:
+   $ .venv\Scripts\activate
+
+**Step 3: Install the Package**
+
+.. code-block:: bash
+
+   $ uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
 
 **Verify Installation**:
 

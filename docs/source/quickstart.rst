@@ -6,13 +6,31 @@ This tutorial will walk you through creating your first Dash application using `
 Step 1: Install the CLI
 -----------------------
 
-Install ``create-dash-app`` from GitHub:
+**Create a Virtual Environment**
+
+It's recommended to install the CLI in a virtual environment:
+
+.. code-block:: bash
+
+   $ uv venv
+
+**Activate the Virtual Environment**
+
+.. code-block:: bash
+
+   # On macOS/Linux:
+   $ source .venv/bin/activate
+
+   # On Windows:
+   $ .venv\Scripts\activate
+
+**Install ``create-dash-app`` from GitHub**
 
 .. code-block:: bash
 
    $ uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
 
-Verify the installation:
+**Verify the installation**
 
 .. code-block:: bash
 

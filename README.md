@@ -14,9 +14,26 @@ A CLI tool for generating opinionated Plotly Dash application scaffolds with aut
 
 ## Installation
 
-```bash
-uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
-```
+**Prerequisites**: Python 3.13+ and `uv` package manager.
+
+1. Create a virtual environment:
+   ```bash
+   uv venv
+   ```
+
+2. Activate the virtual environment:
+   ```bash
+   # On macOS/Linux:
+   source .venv/bin/activate
+   
+   # On Windows:
+   .venv\Scripts\activate
+   ```
+
+3. Install the package:
+   ```bash
+   uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
+   ```
 
 ## Quick Start
 
