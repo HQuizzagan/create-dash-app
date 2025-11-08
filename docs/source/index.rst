@@ -18,39 +18,22 @@ See the CLI in action and understand the generated architecture at a glance:
 Demo Videos
 ^^^^^^^^^^^
 
-.. note::
-   **Video Hosting Note**: Due to file size limitations on ReadTheDocs, the videos may not play directly in the browser when viewing the online documentation. If the videos don't appear below, please use the download links provided. For the best experience, download the videos to watch them locally.
-
 **CLI Demo** — Watch how to create a new Dash app with the CLI:
 
-.. raw:: html
+.. video:: _static/CLI_Demo.mp4
+   :width: 800
 
-   <div style="margin: 1em 0;">
-     <video width="800" controls style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-       <source src="_static/CLI Demo.mov" type="video/quicktime">
-       <source src="_static/CLI Demo.mov" type="video/mp4">
-       Your browser does not support the video tag.
-     </video>
-   </div>
-
-:download:`Download CLI Demo.mov (120MB) <_static/CLI Demo.mov>`
+**Download:** `CLI_Demo.mp4 (7.9MB) <_static/CLI_Demo.mp4>`_ | `CLI Demo on GitHub <https://github.com/hquizzagan/create-dash-app/raw/main/docs/source/_static/CLI_Demo.mp4>`_
 
 **Functionality Demo** — See the auto-discovery and component system in action:
 
-.. raw:: html
+.. video:: _static/Functionality_Demo.mp4
+   :width: 800
 
-   <div style="margin: 1em 0;">
-     <video width="800" controls style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-       <source src="_static/Functionality Demo.mov" type="video/quicktime">
-       <source src="_static/Functionality Demo.mov" type="video/mp4">
-       Your browser does not support the video tag.
-     </video>
-   </div>
-
-:download:`Download Functionality Demo.mov (79MB) <_static/Functionality Demo.mov>`
+**Download:** `Functionality_Demo.mp4 (8.7MB) <_static/Functionality_Demo.mp4>`_ | `Functionality Demo on GitHub <https://github.com/hquizzagan/create-dash-app/raw/main/docs/source/_static/Functionality_Demo.mp4>`_
 
 .. tip::
-   **For ReadTheDocs Users**: If the videos don't play above, click the download links to save them locally. The videos are in QuickTime (`.mov`) format and work best in Safari. For broader browser compatibility, consider converting them to MP4 format.
+   **For ReadTheDocs Users**: If the videos don't play above, click the download links to save them locally. The videos are in MP4 format and should work in all modern browsers.
 
 Architecture Overview
 ^^^^^^^^^^^^^^^^^^^^^

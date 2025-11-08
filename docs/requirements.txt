@@ -1,6 +1,7 @@
 sphinx>=8.2.3
-furo>=2024.1.0
+furo>=2025.9.25
 sphinx-autodoc-typehints>=3.5.2
+sphinxcontrib-video>=0.4.1
 
 # Package dependencies needed for autodoc to import modules
 click>=8.3.0

@@ -29,6 +29,7 @@ extensions = [
     "sphinx.ext.autodoc",  # Automatically generate documentation from docstrings in the code itself
     "sphinx.ext.autosummary",  # Automatically generate summary pages for each module and class
     "sphinx.ext.napoleon",  # Support for Google style docstrings which we use in this project
+    "sphinxcontrib.video",  # Support for embedding videos in the documentation
 ]
 
 templates_path = ["_templates"]
