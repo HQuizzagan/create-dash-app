@@ -1,8 +1,23 @@
 .. create-dash-app CLI documentation master file, created by
    sphinx-quickstart on Thu Nov  6 19:19:33 2025.
 
-Welcome to the `create-dash-app` CLI documentation!
-===================================================
+create-dash-app: Plotly Dash CLI for Callback Organization and State Management
+================================================================================
+
+.. note::
+   **What is create-dash-app?**
+   
+   ``create-dash-app`` is a command-line tool that generates Plotly Dash application scaffolds with auto-discovered callbacks, state management stores, and reusable functional components. It solves common Dash development challenges like organizing multiple callbacks across files, managing application state, and creating reusable components without manual imports or boilerplate code.
+   
+   **Common questions this package answers:**
+   
+   - How do I organize callbacks across multiple files in a Dash app?
+   - How do I manage state in Plotly Dash applications?
+   - How do I create reusable components for Dash apps?
+   - How do I structure a multi-page Dash application?
+   - How do I style Dash apps with Tailwind CSS or other CSS frameworks?
+   - How do I structure large Dash applications for scalability?
+   - How do I avoid manual imports when adding new callbacks or stores?
 
 This is the official documentation for the **`create-dash-app`** CLI package. It provides a comprehensive guide on
    - the **opinionated** design principles adopted by the CLI package in generated the scaffolding for the `Plotly Dash` application,
@@ -20,60 +35,105 @@ Demo Videos
 
 **CLI Demo** — Watch how to create a new Dash app with the CLI:
 
-.. video:: _static/CLI_Demo.mp4
+.. video:: _static/CLI_Demo.webm _static/CLI_Demo.mp4
    :width: 800
 
-**Download:** `CLI_Demo.mp4 (7.9MB) <_static/CLI_Demo.mp4>`_ | `CLI Demo on GitHub <https://github.com/hquizzagan/create-dash-app/raw/main/docs/source/_static/CLI_Demo.mp4>`_
+**Download:** `CLI_Demo.mp4 <https://github.com/hquizzagan/create-dash-app/raw/main/docs/source/_static/CLI_Demo.mp4>`_
 
 **Functionality Demo** — See the auto-discovery and component system in action:
 
-.. video:: _static/Functionality_Demo.mp4
+.. video:: _static/Functionality_Demo.webm _static/Functionality_Demo.mp4
    :width: 800
 
-**Download:** `Functionality_Demo.mp4 (8.7MB) <_static/Functionality_Demo.mp4>`_ | `Functionality Demo on GitHub <https://github.com/hquizzagan/create-dash-app/raw/main/docs/source/_static/Functionality_Demo.mp4>`_
+**Download:** `Functionality_Demo.mp4 <https://github.com/hquizzagan/create-dash-app/raw/main/docs/source/_static/Functionality_Demo.mp4>`_
 
 .. tip::
-   **For ReadTheDocs Users**: If the videos don't play above, click the download links to save them locally. The videos are in MP4 format and should work in all modern browsers.
+   **For ReadTheDocs Users**: If the videos don't play above, click the download links to save them locally.
 
 Architecture Overview
 ^^^^^^^^^^^^^^^^^^^^^
 
-The generated scaffold follows a clear, opinionated structure. Here's what each part looks like:
+The generated scaffold follows a clear, opinionated structure. Here's what each part looks like and how it works:
 
-**Application Entry Point** — The main ``app.py`` file that ties everything together:
+.. _application-entry-point:
+
+Application Entry Point
+"""""""""""""""""""""""
+
+The main ``app.py`` file that ties everything together:
 
 .. image:: _static/app.png
    :alt: Application structure showing app.py
    :width: 800
    :align: center
 
-**Callbacks** — Auto-discovered callback functions organized by feature:
+The ``app.py`` file is the entry point that initializes your `Dash` application. It automatically discovers and registers all callbacks from the ``callbacks/`` directory and all stores from the ``stores/`` directory using the auto-discovery system. You don't need to manually import or register anything — **moving forward in your development**, just add new callback or store files or modules and **use the appropriate DECORATORS as explained below**, and they're automatically included. The app also sets up routing for multi-page applications (as this is already natively supported by `Dash` as per `Dash Pages <https://dash.plotly.com/urls>`_) and configures your chosen CSS framework.
+
+.. _callbacks-section:
+
+Callbacks
+"""""""""
+
+Auto-discovered callback functions grouped by feature or whatever you prefer:
 
 .. image:: _static/callback.png
    :alt: Callback structure showing auto-discovery
    :width: 800
    :align: center
 
-**Components** — Reusable functional components for building UIs:
+Callbacks are organized by feature (or whatever **semantic grouping** you prefer) in separate modules (e.g., ``analytics_callbacks.py``, ``user_management_callbacks.py``) in the ``callbacks/`` directory. Each callback is decorated with ``@register_callback()``, which automatically registers it with the ``app`` instance. The auto-discovery system scans all files in the ``callbacks/`` directory and registers them without requiring manual imports in ``app.py``. This allows you to scale your application by simply adding new callback files.
+
+In case you need to **explicitly control the registration of callbacks** by **pattern**, you can use the ``auto_register_callbacks`` function with the ``pattern`` argument. For example, if you want to only register callbacks defined in Python modules with names starting with ``analytics_``, you can use the following:
+
+.. code-block:: python
+
+   from callbacks import auto_register_callbacks
+
+   auto_register_callbacks(app, pattern="analytics*")
+
+.. _components-section:
+
+Components
+""""""""""
+
+Reusable functional components for building UIs:
 
 .. image:: _static/component.png
    :alt: Component structure showing functional components
    :width: 800
    :align: center
 
-**Pages** — Page-level components that compose your application:
+Components are simple Python functions that return ``Dash`` HTML elements. They follow a React-style functional component pattern, making them easy to test, reuse, and compose. Components can accept parameters (like ``title``, ``content``) — they are called ``props`` in React, and return ``Dash`` components. You can use these components across different pages and features, promoting code reuse and consistency. The ``components/`` directory organizes components by type (e.g., ``modals/``, ``cards/``), or whichever **semantic grouping** you prefer.
+
+.. _pages-section:
+
+Pages
+"""""
+
+Page-level components that compose your application:
 
 .. image:: _static/page.png
    :alt: Page structure showing page organization
    :width: 800
    :align: center
 
-**Stores** — Auto-discovered state management stores:
+Pages are top-level components that compose your application's different views. Each page file in the ``pages/`` directory defines a route and its layout. Pages can import and use components from the ``components/`` directory, creating a hierarchical structure: pages compose components, and components compose smaller UI elements. This separation makes it easy to manage multi-page applications and keep page-specific logic organized.
+
+In the example above, we have a page called ``tasks.py`` which then would be available at the URL ``/tasks``. It imports a *re-usable component** called ``TaskManager`` from the ``components/`` directory. It renders that as part of the page's layout by calling the component function (which if you review from :ref:`components-section` above, returns a ``dash.html.Div`` instance).
+
+.. _stores-section:
+
+Stores
+""""""
+
+Auto-discovered state management stores:
 
 .. image:: _static/store.png
    :alt: Store structure showing state management
    :width: 800
    :align: center
+
+Stores are ``dcc.Store`` components used for managing application state. Similar to callbacks, stores are auto-discovered from the ``stores/`` directory. Each store file can define multiple stores using the ``@register_store()`` decorator, and they're automatically added to your app's layout. Stores can be organized by domain (e.g., ``data_stores.py`` for data-related state, ``ui_stores.py`` for UI state). This provides a clean way to manage state across your application without cluttering your main app file.
 
 Design Philosophy
 ----------------------
@@ -84,7 +144,7 @@ Key Design Principles:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. **Zero-Configuration Auto-Discovery**: **Callbacks** and **stores** SPECIFICALLY are automatically discovered and registered — no manual imports needed.
-2. **Functional Component Pattern**: Adopt *React-style* functional components philosophy.
+2. **Functional Component Pattern**: Adopt *React-style* functional components philosophy. Components accept utility classes from CSS frameworks (Tailwind CSS, Bootstrap, Bulma, etc.) as parameters, enabling flexible styling and composition. This pattern also enables future reuse of pre-defined components from CSS component libraries (e.g., ``DaisyUI``, ``shadcn/ui``), making it easy to build consistent, well-styled UIs.
 3. **Modern Tooling**: Uses ``uv`` for fast dependency management, Docker for deployment, and Ruff for code quality.
 4. **Opinionated Structure**: ``src/``-based layout with clear separation of concerns (``callbacks/``, ``components/``, ``pages/``, ``stores/``, and ``assets/``).
 5. **Developer Experience First**: Focus on making common tasks easy and reducing cognitive overhead.
