@@ -30,6 +30,7 @@ extensions = [
     "sphinx.ext.autosummary",  # Automatically generate summary pages for each module and class
     "sphinx.ext.napoleon",  # Support for Google style docstrings which we use in this project
     "sphinxcontrib.video",  # Support for embedding videos in the documentation
+    "sphinx_new_tab_link",  # Open external links in a NEW tab
 ]
 
 templates_path = ["_templates"]
@@ -55,3 +56,5 @@ html_static_path = ["_static"]
 
 # -- Other Configurations ----------------------------------------------------
 primary_domain = "py"
+video_enforce_extra_source = True
+new_tab_link_show_external_link_icon = True
