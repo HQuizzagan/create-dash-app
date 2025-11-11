@@ -74,6 +74,7 @@ class ProjectGenerator:
                 click.style(f"✅ Successfully created {self.project_name}", fg="green", bold=True)
             )
             self._display_next_steps(config)
+            self._offer_to_start_app(config)
         except Exception as e:
             self._cleanup_on_error()
             click.echo(click.style(f"❌ Error creating project: {e}", fg="red"), err=True)
@@ -397,56 +398,70 @@ module.exports = {
         click.echo(click.style("📋 Next Steps:", fg="cyan", bold=True))
         click.echo("")
 
+        step_num = 1
+
         # Step 1: Navigate to project directory (skip if initializing current dir)
         if self.project_path != Path("."):
-            click.echo(click.style("1. Navigate to your project:", fg="yellow"))
+            click.echo(click.style(f"{step_num}. Navigate to your project:", fg="yellow"))
             click.echo(f"   cd {self.project_name}")
-        click.echo("")
-
-        # Step 2: Activate virtual environment (if using uv)
-        click.echo(click.style("2. Activate the virtual environment:", fg="yellow"))
-        click.echo("   # If using uv (recommended):")
-        click.echo("   uv venv")
-        click.echo("   source .venv/bin/activate  # On macOS/Linux")
-        click.echo("   .venv\\Scripts\\activate     # On Windows")
-        click.echo("")
-        click.echo("   # Or use uv run directly (no activation needed):")
-        click.echo("   uv run <command>")
-        click.echo("")
-
-        # Step 3: Install dependencies (if not already done)
-        click.echo(click.style("3. Install dependencies (if not already done):", fg="yellow"))
-        click.echo("   uv sync")
-        click.echo("")
-
-        # Step 4: Build Tailwind CSS (if configured)
-        if "tailwind" in config.styling:
-            click.echo(click.style("4. Build Tailwind CSS:", fg="yellow"))
-            click.echo("   npm run build:css:prod")
-            click.echo("   # Or for watch mode during development:")
-            click.echo("   npm run build:css")
             click.echo("")
+            step_num += 1
 
-        # Step 5: Run the application
-        step_num = 5 if "tailwind" in config.styling else 4
-        click.echo(click.style(f"{step_num}. Run your Dash application:", fg="yellow"))
-        click.echo("   # Option 1: Using the console script")
+        # Step 2: Activate virtual environment (required for console script)
+        click.echo(
+            click.style(
+                f"{step_num}. Activate the virtual environment (required for console script):",
+                fg="yellow",
+            )
+        )
+        click.echo("   # The virtual environment (.venv) has already been created")
+        click.echo("   # On macOS/Linux:")
+        click.echo("   source .venv/bin/activate")
+        click.echo("")
+        click.echo("   # On Windows:")
+        click.echo("   .venv\\Scripts\\activate")
+        click.echo("")
+        step_num += 1
+
+        # Step 3: Run the application using console script (recommended)
+        click.echo(
+            click.style(
+                f"{step_num}. Run your Dash application using the console script:",
+                fg="yellow",
+            )
+        )
         click.echo(f"   {project_slug}")
         click.echo("")
-        click.echo("   # Option 2: Using Python module")
-        click.echo("   python -m src.app")
+        click.echo(f"   # The app will start and be available at http://127.0.0.1:{config.port}")
         click.echo("")
-        click.echo("   # Option 3: Using uv run")
+        step_num += 1
+
+        # Step 4: Alternative methods
+        click.echo(
+            click.style(f"{step_num}. Alternative: Run without activating venv:", fg="yellow")
+        )
+        click.echo("   # Using uv run (no activation needed):")
         click.echo(f"   uv run {project_slug}")
         click.echo("   # Or")
         click.echo("   uv run python -m src.app")
         click.echo("")
+        step_num += 1
+
+        # Step 5: Build Tailwind CSS (if configured)
+        if "tailwind" in config.styling:
+            click.echo(click.style(f"{step_num}. Build Tailwind CSS (if needed):", fg="yellow"))
+            click.echo("   # For production build:")
+            click.echo("   npm run build:css:prod")
+            click.echo("")
+            click.echo("   # For watch mode during development:")
+            click.echo("   npm run build:css")
+            click.echo("")
+            step_num += 1
 
         # Step 6: Development tips
-        step_num += 1
         click.echo(click.style(f"{step_num}. Development tips:", fg="yellow"))
         click.echo("   • The app will automatically open in your browser")
-        click.echo("   • Default URL: http://127.0.0.1:8050")
+        click.echo(f"   • Default URL: http://127.0.0.1:{config.port}")
         click.echo("   • Edit files in src/ to customize your app")
         if config.include_pages:
             click.echo("   • Add new pages in src/pages/")
@@ -467,6 +482,107 @@ module.exports = {
 
         click.echo(click.style("🎉 Happy coding!", fg="green", bold=True))
         click.echo("")
+
+    def _offer_to_start_app(self, config: ProjectConfig) -> None:
+        """Offer to automatically start the app using subprocess with venv activated."""
+        project_slug = config.project_name.lower().replace(" ", "-").replace("_", "-")
+
+        click.echo("")
+        if click.confirm(
+            click.style(
+                "🚀 Would you like to start the app now? (It will run in the background)",
+                fg="cyan",
+                bold=True,
+            ),
+            default=True,
+        ):
+            self._start_app_in_background(project_slug, config.port)
+        else:
+            click.echo("")
+            click.echo(
+                click.style(
+                    "💡 To start the app later, activate the venv and run:",
+                    fg="yellow",
+                )
+            )
+            click.echo(f"   source .venv/bin/activate && {project_slug}")
+            click.echo("")
+
+    def _start_app_in_background(self, project_slug: str, port: int) -> None:
+        """Start the app in the background using subprocess with venv activated."""
+        try:
+            # Determine the venv Python executable
+            if os.name == "nt":  # Windows
+                venv_python = self.project_path / ".venv" / "Scripts" / "python.exe"
+                venv_script = self.project_path / ".venv" / "Scripts" / f"{project_slug}.exe"
+            else:  # macOS/Linux
+                venv_python = self.project_path / ".venv" / "bin" / "python"
+                venv_script = self.project_path / ".venv" / "bin" / project_slug
+
+            # Try to use the console script first, fallback to Python module
+            if venv_script.exists():
+                command = [str(venv_script)]
+            elif venv_python.exists():
+                command = [str(venv_python), "-m", "src.app"]
+            else:
+                # Fallback to uv run
+                command = ["uv", "run", project_slug]
+
+            click.echo("")
+            click.echo(
+                click.style(
+                    "🚀 Starting your Dash app in the background...",
+                    fg="blue",
+                    bold=True,
+                )
+            )
+            click.echo(
+                click.style(
+                    f"   The app will be available at http://127.0.0.1:{port}",
+                    fg="blue",
+                )
+            )
+            click.echo("")
+
+            # Start the app in the background
+            process = subprocess.Popen(
+                command,
+                cwd=str(self.project_path),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            click.echo(
+                click.style(
+                    f"✅ App started! (PID: {process.pid})",
+                    fg="green",
+                    bold=True,
+                )
+            )
+            click.echo("")
+            # Provide platform-specific stop command
+            if os.name == "nt":  # Windows
+                stop_cmd = f"taskkill /PID {process.pid} /F"
+            else:  # macOS/Linux
+                stop_cmd = f"kill {process.pid}"
+
+            click.echo(
+                click.style(
+                    f"💡 To stop the app, run: {stop_cmd}",
+                    fg="yellow",
+                )
+            )
+            click.echo("")
+
+        except Exception as e:
+            click.echo(
+                click.style(
+                    f"⚠️  Could not start app automatically: {e}",
+                    fg="yellow",
+                )
+            )
+            click.echo("   Please start it manually using the instructions above.")
+            click.echo("")
 
     def _cleanup_on_error(self) -> None:
         """
