@@ -35,20 +35,33 @@ Demo Videos
 
 **CLI Demo** — Watch how to create a new Dash app with the CLI:
 
-.. video:: _static/CLI_Demo.webm _static/CLI_Demo.mp4
-   :width: 800
+.. raw:: html
 
-**Download:** `CLI_Demo.mp4 <https://github.com/hquizzagan/create-dash-app/raw/main/docs/source/_static/CLI_Demo.mp4>`_
+   <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 20px 0;">
+       <iframe src="https://www.youtube.com/embed/CNKiBkjcfws" 
+               frameborder="0" 
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+               allowfullscreen 
+               style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+       </iframe>
+   </div>
+
+**Watch on YouTube:** `CLI Demo <https://youtu.be/CNKiBkjcfws>`_
 
 **Functionality Demo** — See the auto-discovery and component system in action:
 
-.. video:: _static/Functionality_Demo.webm _static/Functionality_Demo.mp4
-   :width: 800
+.. raw:: html
 
-**Download:** `Functionality_Demo.mp4 <https://github.com/hquizzagan/create-dash-app/raw/main/docs/source/_static/Functionality_Demo.mp4>`_
+   <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 20px 0;">
+       <iframe src="https://www.youtube.com/embed/AJKa_JvO70c" 
+               frameborder="0" 
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+               allowfullscreen 
+               style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+       </iframe>
+   </div>
 
-.. tip::
-   **For ReadTheDocs Users**: If the videos don't play above, click the download links to save them locally.
+**Watch on YouTube:** `Functionality Demo <https://youtu.be/AJKa_JvO70c>`_
 
 Architecture Overview
 ^^^^^^^^^^^^^^^^^^^^^

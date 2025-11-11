@@ -1,3 +1,4 @@
-*.mov filter=lfs diff=lfs merge=lfs -text
-*.mp4 filter=lfs diff=lfs merge=lfs -text
-*.webm filter=lfs diff=lfs merge=lfs -text
+# Remove LFS tracking for video files to avoid installation issues
+# These demo videos are documentation-only and not needed for the CLI package
+# If needed, they can be hosted elsewhere (e.g., GitHub releases, external hosting)
+
