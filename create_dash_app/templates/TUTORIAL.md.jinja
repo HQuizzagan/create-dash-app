@@ -1,0 +1,283 @@
+# Building Your First Feature: A Step-by-Step Tutorial
+
+This tutorial walks you through creating a complete feature from scratch, demonstrating how to use components, pages, callbacks, and stores together. We'll build a simple "Todo List" feature that allows users to add and display tasks.
+
+## Overview
+
+We'll create:
+1. **A Todo Component** - A reusable component for displaying individual todos
+2. **A Todo Page** - A page that uses the component and provides input fields
+3. **A Todo Callback** - Handles adding todos and updating the display
+4. **A Todo Store** - Persists the todo list across page navigation
+
+## Step 1: Create a Component
+
+Create a new file `src/components/todo_item.py`:
+
+```python
+from dash import html
+
+
+def TodoItem(todo_text: str, todo_id: str) -> html.Div:
+    """Display a single todo item.
+    
+    Args:
+        todo_text: The text content of the todo
+        todo_id: Unique identifier for the todo
+        
+    Returns:
+        A Dash html.Div component representing a todo item
+    """
+    return html.Div(
+        id=f"todo-{todo_id}",
+        className="p-3 mb-2 bg-white rounded-lg shadow border-l-4 border-blue-500",
+        children=[
+            html.P(todo_text, className="text-gray-800 font-sans m-0"),
+        ],
+    )
+```
+
+This component follows the React-style functional component pattern used throughout this project. It's a pure function that takes parameters and returns a Dash component.
+
+## Step 2: Create a Page
+
+Create a new file `src/pages/todos.py`:
+
+```python
+from dash import dcc, html
+
+from src.components.todo_item import TodoItem
+
+{% if include_pages %}
+import dash
+dash.register_page(__name__, path="/todos")
+{% endif %}
+
+layout = html.Div(
+    className="container mx-auto p-6 max-w-2xl",
+    children=[
+        html.H1("My Todo List", className="text-3xl font-bold mb-6 text-gray-800"),
+        
+        # Input section
+        html.Div(
+            className="mb-6",
+            children=[
+                dcc.Input(
+                    id="todo-input",
+                    type="text",
+                    placeholder="Enter a new todo...",
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none",
+                ),
+                html.Button(
+                    "Add Todo",
+                    id="add-todo-button",
+                    n_clicks=0,
+                    className="mt-2 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 font-semibold",
+                ),
+            ],
+        ),
+        
+        # Todo list container
+        html.Div(
+            id="todo-list-container",
+            className="space-y-2",
+            children=[
+                html.P("No todos yet. Add one above!", className="text-gray-500 italic text-center py-8"),
+            ],
+        ),
+    ],
+)
+```
+
+This page uses the `TodoItem` component we just created. Notice how we import it and can use it in the layout. The `id` attributes (`todo-input`, `add-todo-button`, `todo-list-container`) will be used in our callback.
+
+{% if include_pages %}
+**Note**: If you're using multi-page mode, the `dash.register_page()` call automatically registers this page. If not, you'll need to import and use this layout in your main app.
+{% endif %}
+
+## Step 3: Create a Store
+
+Create a new file `src/stores/todo_store.py`:
+
+```python
+from dash import dcc
+
+from . import register_store
+
+
+@register_store
+def create_todo_store():
+    """Create a store to persist the todo list.
+    
+    This store will hold the list of todos and persist across
+    page navigation and browser refreshes.
+    """
+    return [
+        dcc.Store(
+            id="todo-list-store",
+            storage_type="session",  # Persists across page refreshes
+            data={"todos": []},  # Initialize with empty list
+        ),
+    ]
+```
+
+The `@register_store` decorator automatically discovers and registers this store. The store will be added to your app layout automatically. We use `storage_type="session"` so todos persist across page refreshes but are cleared when the browser session ends.
+
+## Step 4: Create a Callback
+
+Create a new file `src/callbacks/todo_callbacks.py`:
+
+```python
+from dash import Input, Output, State, html
+
+from . import register_callback
+from src.components.todo_item import TodoItem
+
+
+@register_callback(
+    Output("todo-list-container", "children"),
+    Output("todo-input", "value"),
+    Input("add-todo-button", "n_clicks"),
+    State("todo-input", "value"),
+    State("todo-list-store", "data"),
+    prevent_initial_call=True,
+)
+def add_todo(n_clicks, input_value, store_data):
+    """Add a new todo to the list.
+    
+    This callback:
+    1. Reads the current todo list from the store
+    2. Adds the new todo if input is provided
+    3. Updates the display with all todos
+    4. Clears the input field
+    """
+    if n_clicks == 0 or not input_value or not input_value.strip():
+        # Return current state if no valid input
+        todos = store_data.get("todos", []) if store_data else []
+        if not todos:
+            return html.P("No todos yet. Add one above!", className="text-gray-500 italic text-center py-8"), ""
+        return [TodoItem(todo["text"], todo["id"]) for todo in todos], ""
+    
+    # Get existing todos from store
+    todos = store_data.get("todos", []) if store_data else []
+    
+    # Create new todo
+    new_todo = {
+        "id": f"todo-{len(todos)}",
+        "text": input_value.strip(),
+    }
+    
+    # Add to list
+    todos.append(new_todo)
+    
+    # Update store (this will be handled by another callback)
+    # For now, we'll just update the display
+    
+    # Create todo item components
+    todo_components = [TodoItem(todo["text"], todo["id"]) for todo in todos]
+    
+    return todo_components, ""  # Clear input field
+
+
+@register_callback(
+    Output("todo-list-store", "data"),
+    Input("add-todo-button", "n_clicks"),
+    State("todo-input", "value"),
+    State("todo-list-store", "data"),
+    prevent_initial_call=True,
+)
+def update_todo_store(n_clicks, input_value, store_data):
+    """Update the todo store when a new todo is added."""
+    if n_clicks == 0 or not input_value or not input_value.strip():
+        return store_data or {"todos": []}
+    
+    todos = store_data.get("todos", []) if store_data else []
+    
+    # Only add if it's a new todo (prevent duplicates on re-render)
+    if input_value.strip() not in [todo["text"] for todo in todos]:
+        new_todo = {
+            "id": f"todo-{len(todos)}",
+            "text": input_value.strip(),
+        }
+        todos.append(new_todo)
+    
+    return {"todos": todos}
+```
+
+The `@register_callback` decorator automatically discovers and registers these callbacks. Notice how we:
+- Use `Input` for button clicks (triggers the callback)
+- Use `State` for reading values without triggering (input field and store)
+- Return multiple `Output` values (the container children and input value)
+- Import and use our `TodoItem` component
+
+## Step 5: Test Your Feature
+
+1. **Run your app**:
+   ```bash
+   {{ project_name.lower().replace(' ', '-').replace('_', '-') }}
+   ```
+
+2. {% if include_pages %}Navigate to `/todos` in your browser{% else %}The todos page should be accessible{% endif %}
+
+3. **Try it out**:
+   - Type a todo in the input field
+   - Click "Add Todo"
+   - See your todo appear in the list
+   - Add more todos
+   - Refresh the page - your todos should persist (thanks to the session store!)
+
+## Key Takeaways
+
+1. **Components are reusable**: The `TodoItem` component can be used anywhere in your app
+2. **Auto-discovery works**: No need to import callbacks or stores in `app.py` - they're automatically discovered
+3. **Stores persist state**: Use stores to maintain data across callbacks and page navigation
+4. **Callbacks connect everything**: They read from inputs/stores and update outputs
+5. **Separation of concerns**: Each file has a single responsibility (component, page, callback, store)
+
+## Next Steps
+
+- Add delete functionality to remove todos
+- Add checkboxes to mark todos as complete
+- Add filtering (show all, active, completed)
+- Style the todos with different colors or animations
+- Add a database backend to persist todos permanently
+
+## Understanding the Patterns
+
+### Component Pattern
+```python
+def MyComponent(param: str) -> html.Div:
+    return html.Div([...])
+```
+- Pure function that takes parameters
+- Returns a Dash component
+- Can be composed with other components
+
+### Callback Pattern
+```python
+@register_callback(
+    Output("output-id", "property"),
+    Input("trigger-id", "property"),
+    State("read-id", "property"),
+)
+def my_callback(trigger_value, state_value):
+    # Process and return
+    return output_value
+```
+- Decorator registers the callback automatically
+- `Input` triggers the callback
+- `State` reads values without triggering
+- `Output` specifies what gets updated
+
+### Store Pattern
+```python
+@register_store
+def create_my_store():
+    return [dcc.Store(id="my-store", storage_type="memory", data={})]
+```
+- Decorator registers the store automatically
+- Store is added to app layout automatically
+- Use `storage_type`: `"memory"`, `"session"`, or `"local"`
+
+Happy coding! 🚀
+

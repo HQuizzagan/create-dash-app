@@ -42,6 +42,9 @@ class ProjectGenerator:
         self.project_name = project_name
         self.template_type = template_type
 
+        # Will be set in _create_project_dirs to handle "." case
+        self.project_path: Path = Path(".")
+
         # Contains the root-level file templates regardless of template type
         self.templates_base_path = Path(__file__).parent / "templates"
 
@@ -76,17 +79,27 @@ class ProjectGenerator:
         Create the main project directory, and configures the environment
         to use `uv` for dependency management, and `.env.<FLASK_ENV>` for environment variables.
         """
-        # Create the project's ROOT directory
-        if os.path.exists(self.project_name):
-            raise FileExistsError(
-                f"Directory {self.project_name} already exists! "
-                "Please choose a different project name."
+        # Handle case where project_name is "." (initialize current directory)
+        if self.project_name == ".":
+            # Use current directory name as project name for file generation
+            self.project_name = os.path.basename(os.getcwd())
+            self.project_path = Path(".")
+            click.echo(
+                click.style(f"Initializing current directory: {self.project_name}", fg="blue")
             )
-        os.makedirs(self.project_name)
-        click.echo(click.style(f"Created project directory: {self.project_name}", fg="blue"))
+        else:
+            # Create the project's ROOT directory
+            if os.path.exists(self.project_name):
+                raise FileExistsError(
+                    f"Directory {self.project_name} already exists! "
+                    "Please choose a different project name."
+                )
+            os.makedirs(self.project_name)
+            self.project_path = Path(self.project_name)
+            click.echo(click.style(f"Created project directory: {self.project_name}", fg="blue"))
 
         # Create the `pages/` directory (always created for homepage sample)
-        (Path(self.project_name) / "src" / "pages").mkdir(parents=True, exist_ok=True)
+        (self.project_path / "src" / "pages").mkdir(parents=True, exist_ok=True)
         click.echo(click.style("Created `pages/` directory", fg="blue"))
 
     def _generate_files(self, config: ProjectConfig) -> None:
@@ -151,11 +164,11 @@ class ProjectGenerator:
         # Determine target directory based on whether it's a root template
         if is_root_template:
             # Root templates go directly to project root
-            target_dir = Path(self.project_name)
+            target_dir = self.project_path
         else:
             # Template-specific files go to src/
             file_directory = template.parent.relative_to(self.template_path)
-            target_dir = Path(self.project_name) / "src" / file_directory
+            target_dir = self.project_path / "src" / file_directory
 
         target_dir.mkdir(parents=True, exist_ok=True)
 
@@ -173,7 +186,7 @@ class ProjectGenerator:
         The templated pyproject.toml is used, and uv sync will generate the lock file
         and install all dependencies defined in pyproject.toml.
         """
-        pyproject_path = Path(self.project_name) / "pyproject.toml"
+        pyproject_path = self.project_path / "pyproject.toml"
         if not pyproject_path.exists():
             click.echo(click.style("⚠️  pyproject.toml not found, skipping uv sync", fg="yellow"))
             return
@@ -186,7 +199,7 @@ class ProjectGenerator:
             )
             subprocess.run(
                 ["uv", "sync"],
-                cwd=self.project_name,
+                cwd=str(self.project_path),
                 capture_output=True,
                 text=True,
                 check=True,
@@ -199,7 +212,7 @@ class ProjectGenerator:
             )
             subprocess.run(
                 ["uv", "pip", "install", "-e", "."],
-                cwd=self.project_name,
+                cwd=str(self.project_path),
                 capture_output=True,
                 text=True,
                 check=True,
@@ -241,8 +254,7 @@ class ProjectGenerator:
         if "tailwind" not in config.styling:
             return
 
-        project_path = Path(self.project_name)
-        package_json_path = project_path / "package.json"
+        package_json_path = self.project_path / "package.json"
 
         try:
             # Initialize npm if package.json doesn't exist
@@ -250,7 +262,7 @@ class ProjectGenerator:
                 click.echo(click.style("Initializing npm for Tailwind CSS setup ...", fg="blue"))
                 subprocess.run(
                     ["npm", "init", "-y"],
-                    cwd=self.project_name,
+                    cwd=str(self.project_path),
                     capture_output=True,
                     text=True,
                     check=True,
@@ -263,7 +275,7 @@ class ProjectGenerator:
             )
             subprocess.run(
                 ["npm", "install", "-D", "tailwindcss", "@tailwindcss/cli"],
-                cwd=self.project_name,
+                cwd=str(self.project_path),
                 capture_output=True,
                 text=True,
                 check=True,
@@ -271,14 +283,14 @@ class ProjectGenerator:
             click.echo(click.style("✅ Installed Tailwind CSS dependencies", fg="green"))
 
             # Create tailwind.css entry file
-            tailwind_css_path = project_path / "src" / "assets" / "tailwind.css"
+            tailwind_css_path = self.project_path / "src" / "assets" / "tailwind.css"
             tailwind_css_path.parent.mkdir(parents=True, exist_ok=True)
             with open(tailwind_css_path, "w", encoding="utf-8") as f:
                 f.write('@import "tailwindcss";\n')
             click.echo(click.style("✅ Created tailwind.css entry file", fg="green"))
 
             # Create tailwind.config.js
-            tailwind_config_path = project_path / "tailwind.config.js"
+            tailwind_config_path = self.project_path / "tailwind.config.js"
             tailwind_config_content = """/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -317,7 +329,7 @@ module.exports = {
             click.echo(click.style("Building Tailwind CSS (production build) ...", fg="blue"))
             subprocess.run(
                 ["npm", "run", "build:css:prod"],
-                cwd=self.project_name,
+                cwd=str(self.project_path),
                 capture_output=True,
                 text=True,
                 check=True,
@@ -364,15 +376,15 @@ module.exports = {
     def _display_next_steps(self, config: ProjectConfig) -> None:
         """Display helpful next steps after project creation."""
         project_slug = config.project_name.lower().replace(" ", "-").replace("_", "-")
-        project_path = Path(self.project_name).resolve()
 
         click.echo("")
         click.echo(click.style("📋 Next Steps:", fg="cyan", bold=True))
         click.echo("")
 
-        # Step 1: Navigate to project directory
-        click.echo(click.style("1. Navigate to your project:", fg="yellow"))
-        click.echo(f"   cd {self.project_name}")
+        # Step 1: Navigate to project directory (skip if initializing current dir)
+        if self.project_path != Path("."):
+            click.echo(click.style("1. Navigate to your project:", fg="yellow"))
+            click.echo(f"   cd {self.project_name}")
         click.echo("")
 
         # Step 2: Activate virtual environment (if using uv)
@@ -448,18 +460,23 @@ module.exports = {
         created project directory to prevent leaving partial/broken projects
         on the filesystem. Only cleans up if self.project_name exists.
         """
-        if os.path.exists(self.project_name):
+        # Only cleanup if we created a new directory (not if initializing current dir)
+        if (
+            self.project_path
+            and self.project_path != Path(".")
+            and os.path.exists(self.project_path)
+        ):
             # Remove the project directory and its contents
-            shutil.rmtree(self.project_name)
+            shutil.rmtree(self.project_path)
             click.echo(
                 click.style(
                     f"Removed partially created project directory: {self.project_name}", fg="blue"
                 )
             )
-        else:
+        elif self.project_path == Path("."):
             click.echo(
                 click.style(
-                    f"No partially created project directory to remove: {self.project_name}",
+                    "Note: Current directory was being initialized. Manual cleanup may be needed.",
                     fg="yellow",
                 )
             )

@@ -16,24 +16,82 @@ A CLI tool for generating opinionated Plotly Dash application scaffolds with aut
 
 **Prerequisites**: Python 3.13+ and `uv` package manager.
 
-1. Create a virtual environment:
-   ```bash
-   uv venv
-   ```
+### ⭐ Recommended: Use `uvx` (Like `npx` for Python)
 
-2. Activate the virtual environment:
-   ```bash
-   # On macOS/Linux:
-   source .venv/bin/activate
-   
-   # On Windows:
-   .venv\Scripts\activate
-   ```
+**`uvx`** is the **strongly recommended** way to run CLI tools. It's Python's equivalent to Node.js's `npx` - you can run tools without installing them. Since this project uses `uv` for dependency management, `uvx` is the natural choice.
 
-3. Install the package:
-   ```bash
-   uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
-   ```
+```bash
+# Run directly without installation (like npx)
+uvx --from git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106 create-dash-app
+```
+
+**Benefits of `uvx`:**
+- ✅ **No installation needed** - run tools on-demand (like `npx`)
+- ✅ **Always up-to-date** - uses latest version automatically
+- ✅ **Isolated execution** - runs in isolated environment (no dependency conflicts)
+- ✅ **Fast** - `uv` is 10-100× faster than traditional tools
+- ✅ **Cached** - subsequent runs are instant
+- ✅ **Prevents nested project structures** - run from any directory
+
+**Create an alias for convenience:**
+```bash
+# Add to your ~/.zshrc or ~/.bashrc
+alias create-dash-app='uvx --from git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106 create-dash-app'
+```
+
+After adding the alias, you can simply run:
+```bash
+create-dash-app
+```
+
+### Alternative: Install with `pipx` (Persistent Installation)
+
+If you prefer a persistent installation (like `npm install -g`), use `pipx`:
+
+```bash
+# Install pipx if you don't have it
+pip install pipx
+pipx ensurepath
+
+# Install create-dash-app globally
+pipx install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
+```
+
+**When to use `pipx`:**
+- You want the tool permanently installed
+- You prefer explicit installation/updates
+- You're not using `uv` in your workflow
+
+**Note**: You'll need to update manually: `pipx upgrade create-dash-app`
+
+### Understanding the Difference
+
+**Why not global system installation?**
+- `pip install --user` or `sudo pip install` installs directly to system Python
+- Can cause dependency conflicts and pollute your Python environment
+- **This is what's discouraged**
+
+**`pipx` vs `uvx`:**
+- **`pipx`**: Installs tools in isolated environments (like `npm install -g`)
+- **`uvx`**: Runs tools without installation (like `npx`) - **recommended for modern workflows**
+
+### ⚠️ Not Recommended: Install in Virtual Environment
+
+Installing in a project's virtual environment can lead to nested project structures and confusion. However, if you must:
+
+```bash
+# Create and activate virtual environment
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install the package
+uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
+```
+
+**Important**: When using this method:
+1. Run `create-dash-app` from the **parent directory** where you want your project created
+2. **Do NOT** run it from inside an existing project directory (this creates nested structures)
+3. The CLI will warn you if it detects you're in a project directory
 
 ## Quick Start
 

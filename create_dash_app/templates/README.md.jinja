@@ -1,0 +1,170 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Quick Start
+
+### Development
+
+1. **Install dependencies** (requires [uv](https://github.com/astral-sh/uv)):
+   ```bash
+   uv sync
+   ```
+
+2. **Run the application**:
+   ```bash
+   {{ project_name.lower().replace(' ', '-').replace('_', '-') }}
+   ```
+   
+   Or alternatively:
+   ```bash
+   uv run python -m src.app
+   ```
+
+   The app will be available at `http://127.0.0.1:8050` (or the port specified in your environment).
+
+### Production (Docker)
+
+```bash
+docker-compose up --build
+```
+
+## Project Structure
+
+```
+{{ project_name }}/
+├── src/
+│   ├── app.py              # Main application entry point
+│   ├── callbacks/          # Callback functions (auto-discovered)
+│   ├── components/         # Reusable Dash components
+│   ├── pages/              # Page-level layouts
+│   ├── stores/             # State management stores (auto-discovered)
+│   └── assets/             # Static assets (CSS, images, etc.)
+├── tests/                  # Test files
+├── pyproject.toml          # Project metadata and dependencies
+├── Dockerfile              # Docker configuration
+└── docker-compose.yml      # Docker Compose setup
+```
+
+## Sample App
+
+This project includes a fully functional sample application that demonstrates the architecture and patterns. When you run the app, you'll see:
+
+- **Interactive Form**: A form with text input, dropdown, and textarea that demonstrates callback handling with multiple `State` inputs
+- **Counter Component**: Increment/decrement buttons showing how to handle multiple `Input` triggers
+- **Features Modal**: A modal dialog demonstrating component composition and state management
+
+### Sample Files to Study
+
+Explore these files to understand the patterns:
+
+**Callbacks** (`src/callbacks/`):
+- `homepage_callbacks.py` - Demonstrates form submission, counter updates, and modal toggling
+
+**Components** (`src/components/`):
+- `sample_component.py` - Example of a React-style functional component
+- `modals/features.py` - Modal component using Dash Bootstrap Components
+
+**Stores** (`src/stores/`):
+- `sample_store.py` - Examples of memory, session, and local storage stores
+
+**Pages** (`src/pages/`):
+- `homepage.py` - Complete page layout demonstrating component composition
+
+These samples showcase the auto-discovery system, component patterns, and callback best practices. Study them to understand how to build your own features.
+
+### Building Your First Feature
+
+Ready to build something new? Check out **[TUTORIAL.md](TUTORIAL.md)** for a step-by-step guide on creating a complete feature from scratch. The tutorial walks you through:
+
+- Creating a reusable component
+- Building a page that uses the component
+- Adding callbacks to handle user interactions
+- Using stores to persist state
+
+This hands-on tutorial demonstrates all the key patterns used in this project architecture.
+
+## Key Features
+
+### Auto-Discovery Architecture (Callbacks and Stores)
+
+**Callbacks**: Add callback functions in `src/callbacks/` and decorate them with `@register_callback()`. They're automatically discovered and registered with the app — no manual imports needed.
+
+```python
+from . import register_callback
+from dash import Input, Output
+
+@register_callback(
+    Output("output-id", "children"),
+    Input("input-id", "value")
+)
+def my_callback(input_value):
+    return f"You entered: {input_value}"
+```
+
+**Stores**: Add store creation functions in `src/stores/` and decorate them with `@register_store()`. They're automatically created and added to the app layout.
+
+```python
+from . import register_store
+from dash import dcc
+
+@register_store
+def create_my_stores():
+    return [dcc.Store(id="my-store", storage_type="memory", data={})]
+```
+
+### Component-Based Design
+
+Organize reusable components in `src/components/` using a React-style functional component pattern. Components are composable and maintain clean separation of concerns.
+
+### Entry Points
+
+The project uses `pyproject.toml` to define a console script entry point, allowing you to run the app via:
+- `{{ project_name.lower().replace(' ', '-').replace('_', '-') }}`
+- `python -m src.app`
+- `uv run python -m src.app`
+
+## Development
+
+### Code Quality
+
+This project uses:
+- **Ruff** for linting and formatting
+- **Pre-commit hooks** for automated checks
+
+Set up pre-commit hooks:
+```bash
+uv run pre-commit install
+```
+
+### Environment Variables
+
+Create a `.env` file (or `.env.production` for production) to configure:
+- `ENVIRONMENT`: Set to `development` or `production`
+- `PORT`: Port number (default: 8050)
+- `HOST`: Host address (default: 127.0.0.1)
+
+{% if include_tests %}
+### Testing
+
+Run tests with:
+```bash
+uv run pytest
+```
+{% endif %}
+
+## Docker
+
+The project includes Docker configuration for easy deployment:
+
+- **Development**: Use `docker-compose up` to run with hot-reload
+- **Production**: The Dockerfile uses `gunicorn` for production-ready serving
+
+Default port: `{{ port }}`
+
+## Learn More
+
+- [Plotly Dash Documentation](https://dash.plotly.com/)
+- [Dash Bootstrap Components](https://dash-bootstrap-components.opensource.faculty.ai/)
+- [uv Documentation](https://github.com/astral-sh/uv)
+
