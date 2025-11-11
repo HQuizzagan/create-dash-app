@@ -511,22 +511,27 @@ module.exports = {
     def _start_app_in_background(self, project_slug: str, port: int) -> None:
         """Start the app in the background using subprocess with venv activated."""
         try:
-            # Determine the venv Python executable
-            if os.name == "nt":  # Windows
-                venv_python = self.project_path / ".venv" / "Scripts" / "python.exe"
-                venv_script = self.project_path / ".venv" / "Scripts" / f"{project_slug}.exe"
-            else:  # macOS/Linux
-                venv_python = self.project_path / ".venv" / "bin" / "python"
-                venv_script = self.project_path / ".venv" / "bin" / project_slug
+            # Get absolute path to project directory
+            project_dir = self.project_path.resolve()
 
-            # Try to use the console script first, fallback to Python module
-            if venv_script.exists():
-                command = [str(venv_script)]
-            elif venv_python.exists():
+            # Determine the venv Python executable (use absolute paths)
+            if os.name == "nt":  # Windows
+                venv_python = project_dir / ".venv" / "Scripts" / "python.exe"
+                venv_script = project_dir / ".venv" / "Scripts" / f"{project_slug}.exe"
+            else:  # macOS/Linux
+                venv_python = project_dir / ".venv" / "bin" / "python"
+                venv_script = project_dir / ".venv" / "bin" / project_slug
+
+            # Use the venv's Python directly with the module (most reliable)
+            # This is equivalent to: source .venv/bin/activate && python -m src.app
+            if venv_python.exists():
                 command = [str(venv_python), "-m", "src.app"]
+            elif venv_script.exists():
+                # Try console script if it exists
+                command = [str(venv_script)]
             else:
-                # Fallback to uv run
-                command = ["uv", "run", project_slug]
+                # Fallback to uv run (which handles venv automatically)
+                command = ["uv", "run", "python", "-m", "src.app"]
 
             click.echo("")
             click.echo(
@@ -545,9 +550,10 @@ module.exports = {
             click.echo("")
 
             # Start the app in the background
+            # Use absolute path for cwd and ensure we're in the project directory
             process = subprocess.Popen(
                 command,
-                cwd=str(self.project_path),
+                cwd=str(project_dir),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
