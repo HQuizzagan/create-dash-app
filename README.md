@@ -77,11 +77,18 @@ pipx install git+https://github.com/hquizzagan/create-dash-app.git@<version_numb
 
 ## Quick Start
 
+After setting up the alias (see Installation above), simply run:
+
 ```bash
 create-dash-app
 ```
 
 This launches an interactive prompt to configure your project. After generation, dependencies are automatically installed and the project is ready to run.
+
+**Note**: If you haven't set up the alias, use the full `uvx` command:
+```bash
+uvx --from git+https://github.com/hquizzagan/create-dash-app.git@<version_number> create-dash-app
+```
 
 ## Documentation
 

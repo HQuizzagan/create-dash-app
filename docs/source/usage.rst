@@ -12,10 +12,10 @@ Since the CLI package is currently in development and not yet published to `PyPI
 - Python 3.13+ installed
 - ``uv`` package manager installed (recommended)
 
-⭐ Recommended: Use `uvx` (Like `npx` for Python)
+⭐ Recommended: Use ``uvx`` (Like ``npx`` for Python)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**`uvx`** is the **strongly recommended** way to run CLI tools. It's Python's equivalent to Node.js's `npx` - you can run tools without installing them. Since this project uses `uv` for dependency management, `uvx` is the natural choice.
+**``uvx``** is the **strongly recommended** way to run CLI tools. It's Python's equivalent to Node.js's ``npx`` - you can run tools without installing them. Since this project uses `uv` for dependency management, ``uvx`` is the natural choice.
 
 .. code-block:: bash
 
@@ -57,6 +57,9 @@ If you prefer a persistent installation (like `npm install -g`), use `pipx`:
 
 Quick Start
 -----------
+
+.. note::
+   **Prerequisite**: This section assumes you've set up the alias as described in the Installation section above. If you haven't, use the full ``uvx`` command instead.
 
 The fastest way to create your first `Dash` application:
 
@@ -130,21 +133,63 @@ Key Features
 Running Your Application
 ------------------------
 
-After generation, navigate to your project directory and run:
+After generation, navigate to your project directory. You have two options for running your application:
 
-Development Mode
-^^^^^^^^^^^^^^^^^
+Option 1: Using the Console Script (Recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The generated project includes a console script entry point that allows you to run your app directly by its name.
+
+**Step 1: Navigate to your project directory**
 
 .. code-block:: bash
 
    $ cd my-dash-app
-   $ uv run python -m src.app
 
-Or using the project entry point (if configured):
+**Step 2: Activate the virtual environment**
+
+The virtual environment (``.venv``) is automatically created during project generation. Activate it:
+
+.. code-block:: bash
+
+   # On macOS/Linux:
+   $ source .venv/bin/activate
+
+   # On Windows:
+   $ .venv\Scripts\activate
+
+**Step 3: Run your application**
+
+Once the virtual environment is activated, you can run your app using the project name as a command:
+
+.. code-block:: bash
+
+   $ my-dash-app
+
+The app will start and be available at ``http://127.0.0.1:8050`` (or your configured port).
+
+Option 2: Using ``uv run`` (Alternative)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you prefer not to activate the virtual environment manually, you can use ``uv run``:
+
+**Step 1: Navigate to your project directory**
+
+.. code-block:: bash
+
+   $ cd my-dash-app
+
+**Step 2: Run with `uv run`**
 
 .. code-block:: bash
 
    $ uv run my-dash-app
+
+Or alternatively:
+
+.. code-block:: bash
+
+   $ uv run python -m src.app
 
 **Why `my-dash-app` Works**
 
@@ -155,11 +200,7 @@ The generated ``pyproject.toml`` includes a console script entry point:
    [project.scripts]
    my-dash-app = "src.app:main"
 
-When you run ``uv sync`` (or ``pip install .``), this entry point installs a command named after your project. Executing ``my-dash-app`` simply calls ``src.app.main()``, which is equivalent to:
-
-.. code-block:: bash
-
-   $ uv run python -m src.app
+During project generation, the scaffolding automatically runs ``uv sync`` and ``uv pip install -e .``, which installs the package in editable mode and makes the console script available. Executing ``my-dash-app`` simply calls ``src.app.main()``, which is equivalent to ``uv run python -m src.app``.
 
 This is part of the design philosophy: every generated project ships with a first-class CLI command out of the box, so development and deployment workflows stay consistent and frictionless.
 
