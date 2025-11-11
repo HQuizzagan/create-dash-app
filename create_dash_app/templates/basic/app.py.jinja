@@ -24,8 +24,11 @@ from dash import html
 from .build import build_tailwind_css
 {% endif %}
 from .callbacks import auto_register_callbacks
-from .config import is_development
+from .config import is_development, load_env_from_root
 from .stores import auto_create_stores
+
+# Load environment variables from .env file
+load_env_from_root()
 
 app = dash.Dash(
     __name__,
