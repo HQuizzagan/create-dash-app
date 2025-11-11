@@ -62,7 +62,10 @@ class ProjectGenerator:
         """Generate the complete project structure."""
         try:
             self._create_project_dirs(config)
-            # Config already has the correct project_name (no need to update from ".")
+            # Update config.project_name if we're initializing current directory
+            # (config might have "." but we need the actual directory name for templates)
+            if config.project_name == ".":
+                config = config.model_copy(update={"project_name": self.project_name})
             self._generate_files(config)
             self._setup_tailwind_css(config)
             self._initialize_uv_dependencies()
@@ -80,13 +83,10 @@ class ProjectGenerator:
         Create the main project directory, and configures the environment
         to use `uv` for dependency management, and `.env.<FLASK_ENV>` for environment variables.
         """
-        # Check if we're initializing the current directory
-        # (project name matches current directory name and directory exists)
-        current_dir = os.path.abspath(os.getcwd())
-        project_path_abs = os.path.abspath(self.project_name)
-
-        if project_path_abs == current_dir:
-            # Initialize current directory - don't create a new one
+        # Handle case where project_name is "." (initialize current directory)
+        if self.project_name == ".":
+            # Use current directory name as project name for file generation
+            self.project_name = os.path.basename(os.getcwd())
             self.project_path = Path(".")
             click.echo(
                 click.style(f"Initializing current directory: {self.project_name}", fg="blue")

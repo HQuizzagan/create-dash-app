@@ -153,17 +153,13 @@ def collect_project_config() -> ProjectConfig:
                 default=True,
                 style=custom_style,
             ).ask():
-                # Use current directory name - this will be handled specially in generator
-                # We keep the actual name so templates get the correct value
-                config["project_name"] = cwd_name
-                # Mark that we're initializing current directory (will be checked in generator)
+                # Use "." as sentinel to indicate "initialize current directory"
+                config["project_name"] = "."
                 # Instantiate the Pydantic model to trigger validation and field validators
                 return ProjectConfig(**config)
 
     # Validate uniqueness of `project_name`
-    # Skip validation if it's the current directory (we'll handle that in generator)
-    project_path_abs = os.path.abspath(config["project_name"])
-    if os.path.exists(config["project_name"]) and project_path_abs != os.getcwd():
+    if os.path.exists(config["project_name"]) and config["project_name"] != ".":
         raise FileExistsError(
             f"Project `{config['project_name']}` already exists! "
             "Please choose a different project name. "
