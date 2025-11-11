@@ -74,7 +74,6 @@ class ProjectGenerator:
                 click.style(f"✅ Successfully created {self.project_name}", fg="green", bold=True)
             )
             self._display_next_steps(config)
-            self._offer_to_start_app(config)
         except Exception as e:
             self._cleanup_on_error()
             click.echo(click.style(f"❌ Error creating project: {e}", fg="red"), err=True)
@@ -482,113 +481,6 @@ module.exports = {
 
         click.echo(click.style("🎉 Happy coding!", fg="green", bold=True))
         click.echo("")
-
-    def _offer_to_start_app(self, config: ProjectConfig) -> None:
-        """Offer to automatically start the app using subprocess with venv activated."""
-        project_slug = config.project_name.lower().replace(" ", "-").replace("_", "-")
-
-        click.echo("")
-        if click.confirm(
-            click.style(
-                "🚀 Would you like to start the app now? (It will run in the background)",
-                fg="cyan",
-                bold=True,
-            ),
-            default=True,
-        ):
-            self._start_app_in_background(project_slug, config.port)
-        else:
-            click.echo("")
-            click.echo(
-                click.style(
-                    "💡 To start the app later, activate the venv and run:",
-                    fg="yellow",
-                )
-            )
-            click.echo(f"   source .venv/bin/activate && {project_slug}")
-            click.echo("")
-
-    def _start_app_in_background(self, project_slug: str, port: int) -> None:
-        """Start the app in the background using subprocess with venv activated."""
-        try:
-            # Get absolute path to project directory
-            project_dir = self.project_path.resolve()
-
-            # Determine the venv Python executable (use absolute paths)
-            if os.name == "nt":  # Windows
-                venv_python = project_dir / ".venv" / "Scripts" / "python.exe"
-                venv_script = project_dir / ".venv" / "Scripts" / f"{project_slug}.exe"
-            else:  # macOS/Linux
-                venv_python = project_dir / ".venv" / "bin" / "python"
-                venv_script = project_dir / ".venv" / "bin" / project_slug
-
-            # Use the venv's Python directly with the module (most reliable)
-            # This is equivalent to: source .venv/bin/activate && python -m src.app
-            if venv_python.exists():
-                command = [str(venv_python), "-m", "src.app"]
-            elif venv_script.exists():
-                # Try console script if it exists
-                command = [str(venv_script)]
-            else:
-                # Fallback to uv run (which handles venv automatically)
-                command = ["uv", "run", "python", "-m", "src.app"]
-
-            click.echo("")
-            click.echo(
-                click.style(
-                    "🚀 Starting your Dash app in the background...",
-                    fg="blue",
-                    bold=True,
-                )
-            )
-            click.echo(
-                click.style(
-                    f"   The app will be available at http://127.0.0.1:{port}",
-                    fg="blue",
-                )
-            )
-            click.echo("")
-
-            # Start the app in the background
-            # Use absolute path for cwd and ensure we're in the project directory
-            process = subprocess.Popen(
-                command,
-                cwd=str(project_dir),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-
-            click.echo(
-                click.style(
-                    f"✅ App started! (PID: {process.pid})",
-                    fg="green",
-                    bold=True,
-                )
-            )
-            click.echo("")
-            # Provide platform-specific stop command
-            if os.name == "nt":  # Windows
-                stop_cmd = f"taskkill /PID {process.pid} /F"
-            else:  # macOS/Linux
-                stop_cmd = f"kill {process.pid}"
-
-            click.echo(
-                click.style(
-                    f"💡 To stop the app, run: {stop_cmd}",
-                    fg="yellow",
-                )
-            )
-            click.echo("")
-
-        except Exception as e:
-            click.echo(
-                click.style(
-                    f"⚠️  Could not start app automatically: {e}",
-                    fg="yellow",
-                )
-            )
-            click.echo("   Please start it manually using the instructions above.")
-            click.echo("")
 
     def _cleanup_on_error(self) -> None:
         """
