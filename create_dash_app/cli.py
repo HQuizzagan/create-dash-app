@@ -20,16 +20,6 @@ def get_version() -> str:
         return "dev"
 
 
-@click.command(
-    context_settings={"help_option_names": ["-h", "--help"]},
-    help="Create a new Plotly Dash application with opinionated boilerplate code.",
-)
-@click.version_option(
-    version=get_version(),
-    prog_name="create-dash-app",
-    message="%(prog)s version %(version)s",
-    help="Show the version and exit.",
-)
 def _warn_if_inside_project_directory() -> None:
     """
     Warn the user if they're running create-dash-app from inside a project directory.
@@ -64,7 +54,8 @@ def _warn_if_inside_project_directory() -> None:
             "   alias create-dash-app='uvx --from "
             "git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106 "
             "create-dash-app'\n\n"
-            "Then run 'create-dash-app' from the parent directory where you want your project created.\n"
+            "Then run 'create-dash-app' from the parent directory "
+            "where you want your project created.\n"
         )
         click.echo(click.style(warning_msg, fg="yellow", bold=True))
         if not click.confirm("Continue anyway?", default=False):
@@ -72,6 +63,16 @@ def _warn_if_inside_project_directory() -> None:
             raise click.Abort()
 
 
+@click.command(
+    context_settings={"help_option_names": ["-h", "--help"]},
+    help="Create a new Plotly Dash application with opinionated boilerplate code.",
+)
+@click.version_option(
+    version=get_version(),
+    prog_name="create-dash-app",
+    message="%(prog)s version %(version)s",
+    help="Show the version and exit.",
+)
 def create_dash_app():
     """
     Create a new Plotly Dash application with opinionated boilerplate code.
