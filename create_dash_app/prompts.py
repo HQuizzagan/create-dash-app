@@ -146,18 +146,24 @@ def collect_project_config() -> ProjectConfig:
         if not dir_contents or (len(dir_contents) == 1 and ".git" in os.listdir(".")):
             # Directory is essentially empty
             if questionary.confirm(
-                f"📁 You're in a directory named '{cwd_name}' and want to create '{project_name}'.\n"
-                "Would you like to initialize the current directory instead of creating a nested one?",
+                f"📁 You're in a directory named '{cwd_name}' "
+                f"and want to create '{project_name}'.\n"
+                "Would you like to initialize the current directory "
+                "instead of creating a nested one?",
                 default=True,
                 style=custom_style,
             ).ask():
-                # Use current directory - don't create a nested one
-                config["project_name"] = "."
+                # Use current directory name - this will be handled specially in generator
+                # We keep the actual name so templates get the correct value
+                config["project_name"] = cwd_name
+                # Mark that we're initializing current directory (will be checked in generator)
                 # Instantiate the Pydantic model to trigger validation and field validators
                 return ProjectConfig(**config)
 
     # Validate uniqueness of `project_name`
-    if os.path.exists(config["project_name"]) and config["project_name"] != ".":
+    # Skip validation if it's the current directory (we'll handle that in generator)
+    project_path_abs = os.path.abspath(config["project_name"])
+    if os.path.exists(config["project_name"]) and project_path_abs != os.getcwd():
         raise FileExistsError(
             f"Project `{config['project_name']}` already exists! "
             "Please choose a different project name. "

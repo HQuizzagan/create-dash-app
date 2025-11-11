@@ -62,6 +62,7 @@ class ProjectGenerator:
         """Generate the complete project structure."""
         try:
             self._create_project_dirs(config)
+            # Config already has the correct project_name (no need to update from ".")
             self._generate_files(config)
             self._setup_tailwind_css(config)
             self._initialize_uv_dependencies()
@@ -79,10 +80,13 @@ class ProjectGenerator:
         Create the main project directory, and configures the environment
         to use `uv` for dependency management, and `.env.<FLASK_ENV>` for environment variables.
         """
-        # Handle case where project_name is "." (initialize current directory)
-        if self.project_name == ".":
-            # Use current directory name as project name for file generation
-            self.project_name = os.path.basename(os.getcwd())
+        # Check if we're initializing the current directory
+        # (project name matches current directory name and directory exists)
+        current_dir = os.path.abspath(os.getcwd())
+        project_path_abs = os.path.abspath(self.project_name)
+
+        if project_path_abs == current_dir:
+            # Initialize current directory - don't create a new one
             self.project_path = Path(".")
             click.echo(
                 click.style(f"Initializing current directory: {self.project_name}", fg="blue")
@@ -192,6 +196,18 @@ class ProjectGenerator:
             return
 
         try:
+            # Ensure .venv exists - uv sync should create it, but let's be explicit
+            venv_path = self.project_path / ".venv"
+            if not venv_path.exists():
+                click.echo(click.style("Creating virtual environment with uv ...", fg="blue"))
+                subprocess.run(
+                    ["uv", "venv"],
+                    cwd=str(self.project_path),
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+
             click.echo(
                 click.style(
                     "Running uv sync to generate lock file and install dependencies ...", fg="blue"
