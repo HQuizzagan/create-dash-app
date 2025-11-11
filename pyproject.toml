@@ -105,10 +105,5 @@ docstring-code-format = true
 # enabled.
 docstring-code-line-length = "dynamic"
 
-[tool.uv.workspace]
-members = [
-    "sample",
-]
-
 [tool.ruff.lint.isort]
 known-third-party = ["fastapi", "sqlmodel", "pydantic", "neomodel", "neo4j"]
