@@ -10,37 +10,50 @@ Since the CLI package is currently in development and not yet published to `PyPI
 
 **Prerequisites**:
 - Python 3.13+ installed
-- ``uv`` package manager installed (recommended) or ``pip``
+- ``uv`` package manager installed (recommended)
 
-**Step 1: Create a Virtual Environment**
+⭐ Recommended: Use `uvx` (Like `npx` for Python)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It's recommended to install the CLI in a virtual environment to avoid conflicts with system packages:
-
-.. code-block:: bash
-
-   $ uv venv
-
-**Step 2: Activate the Virtual Environment**
+**`uvx`** is the **strongly recommended** way to run CLI tools. It's Python's equivalent to Node.js's `npx` - you can run tools without installing them. Since this project uses `uv` for dependency management, `uvx` is the natural choice.
 
 .. code-block:: bash
 
-   # On macOS/Linux:
-   $ source .venv/bin/activate
+   $ uvx --from git+https://github.com/hquizzagan/create-dash-app.git@<version_number> create-dash-app
 
-   # On Windows:
-   $ .venv\Scripts\activate
-
-**Step 3: Install the Package**
+**Create an alias for convenience:**
 
 .. code-block:: bash
 
-   $ uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
+   # Add to your ~/.zshrc or ~/.bashrc
+   $ alias create-dash-app='uvx --from git+https://github.com/hquizzagan/create-dash-app.git@<version_number> create-dash-app'
 
-**Verify Installation**:
+After adding the alias, you can simply run:
 
 .. code-block:: bash
 
-   $ create-dash-app --help
+   $ create-dash-app
+
+Alternative: Install with `pipx` (Persistent Installation)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you prefer a persistent installation (like `npm install -g`), use `pipx`:
+
+.. code-block:: bash
+
+   # Install pipx if you don't have it
+   $ pip install pipx
+   $ pipx ensurepath
+
+   # Install create-dash-app globally
+   $ pipx install git+https://github.com/hquizzagan/create-dash-app.git@<version_number>
+
+**When to use `pipx`:**
+- You want the tool permanently installed
+- You prefer explicit installation/updates
+- You're not using `uv` in your workflow
+
+**Note**: You'll need to update manually: ``pipx upgrade create-dash-app``
 
 Quick Start
 -----------

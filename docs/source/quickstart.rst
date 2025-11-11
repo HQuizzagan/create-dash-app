@@ -6,31 +6,48 @@ This tutorial will walk you through creating your first Dash application using `
 Step 1: Install the CLI
 -----------------------
 
-**Create a Virtual Environment**
+⭐ **Recommended: Use `uvx` (No Installation Required)**
 
-It's recommended to install the CLI in a virtual environment:
-
-.. code-block:: bash
-
-   $ uv venv
-
-**Activate the Virtual Environment**
+The easiest way to use ``create-dash-app`` is with `uvx`, which runs the tool without installation (like `npx` for Node.js):
 
 .. code-block:: bash
 
-   # On macOS/Linux:
-   $ source .venv/bin/activate
+   $ uvx --from git+https://github.com/hquizzagan/create-dash-app.git@<version_number> create-dash-app
 
-   # On Windows:
-   $ .venv\Scripts\activate
+**Benefits:**
+- No installation needed
+- Always uses the latest version
+- Isolated execution (no dependency conflicts)
+- Fast and cached
 
-**Install ``create-dash-app`` from GitHub**
+**Create an alias for convenience:**
 
 .. code-block:: bash
 
-   $ uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
+   # Add to your ~/.zshrc or ~/.bashrc
+   $ alias create-dash-app='uvx --from git+https://github.com/hquizzagan/create-dash-app.git@<version_number> create-dash-app'
 
-**Verify the installation**
+After adding the alias, you can simply run:
+
+.. code-block:: bash
+
+   $ create-dash-app
+
+Alternative: Install with `pipx` (Persistent Installation)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you prefer a persistent installation:
+
+.. code-block:: bash
+
+   # Install pipx if you don't have it
+   $ pip install pipx
+   $ pipx ensurepath
+
+   # Install create-dash-app globally
+   $ pipx install git+https://github.com/hquizzagan/create-dash-app.git@<version_number>
+
+**Verify the installation:**
 
 .. code-block:: bash
 

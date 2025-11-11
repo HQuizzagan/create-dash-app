@@ -22,7 +22,7 @@ A CLI tool for generating opinionated Plotly Dash application scaffolds with aut
 
 ```bash
 # Run directly without installation (like npx)
-uvx --from git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106 create-dash-app
+uvx --from git+https://github.com/hquizzagan/create-dash-app.git@<version_number> create-dash-app
 ```
 
 **Benefits of `uvx`:**
@@ -36,7 +36,7 @@ uvx --from git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev2025110
 **Create an alias for convenience:**
 ```bash
 # Add to your ~/.zshrc or ~/.bashrc
-alias create-dash-app='uvx --from git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106 create-dash-app'
+alias create-dash-app='uvx --from git+https://github.com/hquizzagan/create-dash-app.git@<version_number> create-dash-app'
 ```
 
 After adding the alias, you can simply run:
@@ -54,7 +54,7 @@ pip install pipx
 pipx ensurepath
 
 # Install create-dash-app globally
-pipx install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
+pipx install git+https://github.com/hquizzagan/create-dash-app.git@<version_number>
 ```
 
 **When to use `pipx`:**
@@ -74,24 +74,6 @@ pipx install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251
 **`pipx` vs `uvx`:**
 - **`pipx`**: Installs tools in isolated environments (like `npm install -g`)
 - **`uvx`**: Runs tools without installation (like `npx`) - **recommended for modern workflows**
-
-### ⚠️ Not Recommended: Install in Virtual Environment
-
-Installing in a project's virtual environment can lead to nested project structures and confusion. However, if you must:
-
-```bash
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install the package
-uv pip install git+https://github.com/hquizzagan/create-dash-app.git@v0.1.dev20251106
-```
-
-**Important**: When using this method:
-1. Run `create-dash-app` from the **parent directory** where you want your project created
-2. **Do NOT** run it from inside an existing project directory (this creates nested structures)
-3. The CLI will warn you if it detects you're in a project directory
 
 ## Quick Start
 
