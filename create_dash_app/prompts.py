@@ -129,12 +129,39 @@ def collect_project_config() -> ProjectConfig:
         ),
     ).ask()
 
+    # Smart detection: If CWD name matches project name, offer to initialize current directory
+    cwd_name = os.path.basename(os.getcwd())
+    project_name = config["project_name"]
+
+    # Normalize names for comparison (handle hyphens, underscores, case)
+    def normalize_name(name: str) -> str:
+        return name.lower().replace("-", "_").replace(" ", "_")
+
+    if normalize_name(cwd_name) == normalize_name(project_name):
+        # Check if directory is empty or only has .venv
+        dir_contents = set(os.listdir("."))
+        dir_contents.discard(".venv")  # Ignore .venv if present
+        dir_contents.discard(".git")  # Ignore .git if present
+
+        if not dir_contents or (len(dir_contents) == 1 and ".git" in os.listdir(".")):
+            # Directory is essentially empty
+            if questionary.confirm(
+                f"📁 You're in a directory named '{cwd_name}' and want to create '{project_name}'.\n"
+                "Would you like to initialize the current directory instead of creating a nested one?",
+                default=True,
+                style=custom_style,
+            ).ask():
+                # Use current directory - don't create a nested one
+                config["project_name"] = "."
+                # Instantiate the Pydantic model to trigger validation and field validators
+                return ProjectConfig(**config)
+
     # Validate uniqueness of `project_name`
-    if os.path.exists(config["project_name"]):
+    if os.path.exists(config["project_name"]) and config["project_name"] != ".":
         raise FileExistsError(
             f"Project `{config['project_name']}` already exists! "
-            "Please choose a different project name."
-            "You can also run `create-dash-app` in a different directory."
+            "Please choose a different project name. "
+            "You can also run `create-dash-app` in a different directory. "
             "You can also delete the existing project and run `create-dash-app` again."
         )
 
