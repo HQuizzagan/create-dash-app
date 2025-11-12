@@ -14,7 +14,7 @@ build-backend = "setuptools.build_meta"
 # PROJECT METADATA
 [project]
 name = "create-dash-app"
-version = "0.1.0"
+version = "0.1.dev20251111"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
