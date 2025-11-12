@@ -27,8 +27,7 @@ jobs:
         env:
           RTD_API_TOKEN: ${{ secrets.READTHEDOCS_API_TOKEN }}
           RTD_PROJECT_SLUG: ${{ secrets.READTHEDOCS_PROJECT_SLUG || 'create-dash-app' }}
-          BRANCH: ${{ inputs.branch }}
-          VERSION: ${{ inputs.version }}
+          VERSION: ${{ inputs.version || inputs.branch || 'latest' }}
         run: |
           # Check if API token is set
           if [ -z "$RTD_API_TOKEN" ]; then
@@ -37,24 +36,14 @@ jobs:
             exit 1
           fi
           
-          # Determine which endpoint to use
-          if [ -n "$VERSION" ] && [ "$VERSION" != "" ]; then
-            # Build specific version
-            echo "🚀 Triggering Read the Docs build for version: $VERSION"
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-              -H "Authorization: Token $RTD_API_TOKEN" \
-              -H "Content-Type: application/json" \
-              -d "{\"version\": \"$VERSION\"}" \
-              "https://readthedocs.org/api/v3/projects/$RTD_PROJECT_SLUG/versions/$VERSION/builds/")
-          else
-            # Build latest version of branch
-            echo "🚀 Triggering Read the Docs build for branch: $BRANCH"
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-              -H "Authorization: Token $RTD_API_TOKEN" \
-              -H "Content-Type: application/json" \
-              -d "{\"branches\": [\"$BRANCH\"]}" \
-              "https://readthedocs.org/api/v3/projects/$RTD_PROJECT_SLUG/builds/")
-          fi
+          # Trigger build using the official API endpoint
+          # See: https://docs.readthedocs.com/platform/stable/api/v3.html#build-triggering
+          echo "🚀 Triggering Read the Docs build for version: $VERSION"
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Authorization: Token $RTD_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{}" \
+            "https://readthedocs.org/api/v3/projects/$RTD_PROJECT_SLUG/versions/$VERSION/builds/")
           
           # Extract HTTP status code (last line)
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
@@ -67,14 +56,17 @@ jobs:
             echo ""
             echo "📖 View build status at: https://readthedocs.org/projects/$RTD_PROJECT_SLUG/builds/"
           elif [ "$HTTP_CODE" -eq 400 ]; then
-            echo "❌ Bad request. Check your project slug and branch/version name."
+            echo "❌ Bad request. Check your project slug and version name."
             echo "Response: $BODY"
             exit 1
           elif [ "$HTTP_CODE" -eq 401 ]; then
             echo "❌ Unauthorized. Check your API token."
             exit 1
           elif [ "$HTTP_CODE" -eq 404 ]; then
-            echo "❌ Project not found. Check your project slug: $RTD_PROJECT_SLUG"
+            echo "❌ Project or version not found."
+            echo "Project slug: $RTD_PROJECT_SLUG"
+            echo "Version: $VERSION"
+            echo "Response: $BODY"
             exit 1
           else
             echo "❌ Unexpected error (HTTP $HTTP_CODE)"
