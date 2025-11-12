@@ -1,0 +1,84 @@
+name: Trigger ReadTheDocs Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build (default: main)'
+        required: false
+        default: 'main'
+        type: string
+      version:
+        description: 'Version slug to build (optional, leave empty for latest)'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  trigger-rtd-build:
+    name: Trigger ReadTheDocs Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trigger Read the Docs build
+        env:
+          RTD_API_TOKEN: ${{ secrets.READTHEDOCS_API_TOKEN }}
+          RTD_PROJECT_SLUG: ${{ secrets.READTHEDOCS_PROJECT_SLUG || 'create-dash-app' }}
+          BRANCH: ${{ inputs.branch }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          # Check if API token is set
+          if [ -z "$RTD_API_TOKEN" ]; then
+            echo "❌ Error: READTHEDOCS_API_TOKEN secret is not set"
+            echo "Please add it in: Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          
+          # Determine which endpoint to use
+          if [ -n "$VERSION" ] && [ "$VERSION" != "" ]; then
+            # Build specific version
+            echo "🚀 Triggering Read the Docs build for version: $VERSION"
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+              -H "Authorization: Token $RTD_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"version\": \"$VERSION\"}" \
+              "https://readthedocs.org/api/v3/projects/$RTD_PROJECT_SLUG/versions/$VERSION/builds/")
+          else
+            # Build latest version of branch
+            echo "🚀 Triggering Read the Docs build for branch: $BRANCH"
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+              -H "Authorization: Token $RTD_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"branches\": [\"$BRANCH\"]}" \
+              "https://readthedocs.org/api/v3/projects/$RTD_PROJECT_SLUG/builds/")
+          fi
+          
+          # Extract HTTP status code (last line)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          # Check response
+          if [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Build triggered successfully!"
+            echo "Response: $BODY"
+            echo ""
+            echo "📖 View build status at: https://readthedocs.org/projects/$RTD_PROJECT_SLUG/builds/"
+          elif [ "$HTTP_CODE" -eq 400 ]; then
+            echo "❌ Bad request. Check your project slug and branch/version name."
+            echo "Response: $BODY"
+            exit 1
+          elif [ "$HTTP_CODE" -eq 401 ]; then
+            echo "❌ Unauthorized. Check your API token."
+            exit 1
+          elif [ "$HTTP_CODE" -eq 404 ]; then
+            echo "❌ Project not found. Check your project slug: $RTD_PROJECT_SLUG"
+            exit 1
+          else
+            echo "❌ Unexpected error (HTTP $HTTP_CODE)"
+            echo "Response: $BODY"
+            exit 1
+          fi
+
