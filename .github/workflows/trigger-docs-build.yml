@@ -50,11 +50,23 @@ jobs:
           BODY=$(echo "$RESPONSE" | sed '$d')
           
           # Check response
-          if [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 200 ]; then
-            echo "✅ Build triggered successfully!"
-            echo "Response: $BODY"
+          # HTTP 202 (Accepted) is the success response for triggering builds
+          if [ "$HTTP_CODE" -eq 202 ] || [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Build triggered successfully! (HTTP $HTTP_CODE)"
+            
+            # Extract build information from nested JSON response
+            # Response structure: {"build": {"id": 123, "urls": {"build": "https://..."}}}
+            BUILD_ID=$(echo "$BODY" | grep -o '"build":{[^}]*"id":[0-9]*' | grep -o '"id":[0-9]*' | cut -d':' -f2 | head -1)
+            BUILD_URL=$(echo "$BODY" | grep -o '"urls":{[^}]*"build":"https://[^"]*"' | grep -o '"build":"https://[^"]*"' | cut -d'"' -f4 | head -1)
+            
+            if [ -n "$BUILD_ID" ]; then
+              echo "📦 Build ID: $BUILD_ID"
+            fi
+            if [ -n "$BUILD_URL" ]; then
+              echo "🔗 Build URL: $BUILD_URL"
+            fi
             echo ""
-            echo "📖 View build status at: https://readthedocs.org/projects/$RTD_PROJECT_SLUG/builds/"
+            echo "📖 View all builds: https://readthedocs.org/projects/$RTD_PROJECT_SLUG/builds/"
           elif [ "$HTTP_CODE" -eq 400 ]; then
             echo "❌ Bad request. Check your project slug and version name."
             echo "Response: $BODY"
